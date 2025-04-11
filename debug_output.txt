@@ -1,0 +1,17 @@
+Starting OS with Virtual Memory...
+[MEM SIZE]: 1024
+[PAGES]: 4
+Paging Table:
+Start Address: 768 -> Physical Page: 3
+Start Address: 256 -> Physical Page: 2
+Start Address: 512 -> Physical Page: 1
+Start Address: 0 -> Physical Page: 0
+Register 1: 15
+Register 3: 75
+Register 5: 175
+Register 7: 350
+Register 9: 700
+Register 11: 207
+Register 13: 2800
+Register 15: 2400
+Program terminated.

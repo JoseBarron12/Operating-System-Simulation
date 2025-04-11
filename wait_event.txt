@@ -1,0 +1,5 @@
+movi r0 $0        
+WaitEvent r0       
+movi r1 $42        
+printr r1
+exit

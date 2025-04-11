@@ -1,0 +1,6 @@
+movi r0 $200
+Alloc r0 r3
+movi r0 $300
+Alloc r0 r4
+printr r4
+exit

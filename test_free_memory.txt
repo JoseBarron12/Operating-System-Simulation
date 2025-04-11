@@ -1,0 +1,7 @@
+movi r0 $64
+printr r0
+Alloc r0 r1 
+printr r1
+FreeMemory r1
+FreeMemory r1
+exit

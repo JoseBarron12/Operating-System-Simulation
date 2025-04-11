@@ -1,0 +1,2 @@
+SignalEventI $0
+exit

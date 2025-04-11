@@ -1,0 +1,11 @@
+movi r0 $300
+Alloc r0 r1 
+printr r1
+movi r0 $300
+Alloc r0 r2
+printr r2
+FreeMemory r1
+movi r0 $200
+Alloc r0 r3      
+printr r3
+exit
