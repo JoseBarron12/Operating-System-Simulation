@@ -10,6 +10,8 @@
 #include<cstdint>
 #include "memory.h"
 #include "ProcessScheduler.h"
+#include <functional>
+
 
 class CPU 
 {
@@ -18,7 +20,7 @@ private:
     u_int32_t registers[15]; // 14 registers
     
     uint64_t systemClock;         // Tick counter for executed instruction
-    std::vector<void(*)()> interruptTable;  // Interrupt function pointers
+                                  // Interrupt function pointers
     
     ProcessScheduler& scheduler;
     memory& mem;
@@ -29,6 +31,7 @@ private:
     bool sleepRequested = false;  
     uint32_t sleepDuration = 0;   
     bool terminated = false; 
+    bool quantumExpired = false;
 
     std::vector<int32_t> locks;
 
@@ -60,14 +63,17 @@ public:
     bool isSleepRequested() const { return sleepRequested; }  
     uint32_t getSleepDuration() const { return sleepDuration; }  
     void clearSleepRequest() { sleepRequested = false; sleepDuration = 0; } 
+    void setSleepDuration( uint32_t sleep) { sleepDuration = 0; }
     
     bool isTerminated() const { return terminated; }  
     void clearTerminatedFlag() { terminated = false; }
 
+    bool isExpired() const { return quantumExpired; }
+    void clearExpiredFlag() { terminated = false; }
+
     u_int32_t* getRegisters() { return registers; }
 
-    
-
+    std::function<void()> onCycleCallback;
 
 };
 

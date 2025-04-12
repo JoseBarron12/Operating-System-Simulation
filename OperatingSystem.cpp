@@ -6,7 +6,7 @@ OperatingSystem::OperatingSystem(uint32_t memorySize, const std::string& program
     : mem(memorySize), cpu(mem, scheduler), programFile(programFile) {
     currentMemAddress = 0;
 
-    loadProcess(1, programFile, 256, 256, 1, 1024);
+    loadProcess(999, programFile, 4, 512, 1, 512); // load idle process with lowest priority
 }
 
 const std::vector<uint32_t>& OperatingSystem::getSharedPages() const {
@@ -80,50 +80,89 @@ void OperatingSystem::start()
 
     std::vector<PCB*> terminatedProcesses;
 
-    while (!processList.empty()) 
+    PCB* idleProcess = nullptr;
+    for (PCB* p : processList) 
     {
-        std::cout << "\n[DEBUG] -------- Start of loop --------\n";
-        std::cout << "[DEBUG] Process list size: " << processList.size() << std::endl;
-
-        for (PCB* p : processList) 
+        if (p->processId == 999) 
         {
-            if (p->state == "Sleeping") 
+            idleProcess = p;
+            break;
+        }
+    }
+
+    cpu.onCycleCallback = [&]() 
+    {
+        for (PCB* p : processList)
+        {
+            if (p->state == "Sleeping" && p->sleepCounter > 0)
             {
                 p->sleepCounter--;
-                std::cout << "[SLEEPING] Process " << p->processId 
-                  << " is sleeping... " 
-                  << p->sleepCounter << " cycles remaining\n";
-                if (p->sleepCounter <= 0) 
+                std::cout << "[SLEEP CYCLE] Process " << p->processId 
+                          << " now has " << p->sleepCounter << " cycles left\n";
+                if (p->sleepCounter == 0)
                 {
                     p->state = "Ready";
                     scheduler.addProcess(p);
-                    std::cout << "[WAKE UP] Process " << p->processId << " has finished sleeping and is now Ready\n";
+                    std::cout << "[WAKE UP] Process " << p->processId << " is now Ready\n";
                 }
             }
         }
+    };
 
-        PCB* next = scheduler.getNextProcess();
-        if (!next) 
+
+    while (!processList.empty()) 
+    {
+        if (processList.size() == 1 && processList[0]->processId == 999) 
         {
-            bool sleepingExists = false;
-            for (PCB* p : processList) 
-            {
-                if (p->state == "Sleeping") 
-                {
-                    sleepingExists = true;
-                    break;
-                }
-            }
-
-            if (sleepingExists) 
-            {
-                std::cout << "[OS] No ready processes, but some are sleeping.\n";
-                continue; 
-            }
-            std::cout << "[OS] No more processes to run. Halting...\n";
+            std::cout << "[OS] Only idle process remains. Halting system...\n";
             break;
         }
+        
+        std::cout << "\n[DEBUG] -------- Start of loop --------\n";
+        std::cout << "[DEBUG] Process list size: " << processList.size() << std::endl;
 
+
+        PCB* next = scheduler.getNextProcess();
+        
+        if (!next || next->processId == 999) 
+        {
+            bool allSleeping = true;
+            int minSleep = INT32_MAX;
+
+            for (PCB* p : processList) 
+            {
+                if (p->state != "Sleeping" && p->state != "Terminated" && p->processId != 999) 
+                {
+                    allSleeping = false;
+                    break;
+                }
+
+                if (p->state == "Sleeping" && p->sleepCounter > 0 && p->processId != 999) 
+                {
+                    minSleep = std::min(minSleep, static_cast<int>(p->sleepCounter));
+                }
+            }
+
+            std::cout << "[SLEEPING CHECK]: " << std::boolalpha << allSleeping << std::endl;
+
+            if (allSleeping && idleProcess && idleProcess->state != "Terminated") 
+            {
+                next = idleProcess;
+                if (minSleep != INT32_MAX) 
+                {
+                    next->settimeQuantum(minSleep);
+                } else 
+                {
+                    next->settimeQuantum(1);  // fallback to at least one cycle
+                }
+                std::cout << "[IDLE] Running idle process for " << minSleep << " cycles...\n";
+            } 
+            else 
+            {
+                std::cout << "[OS] No more processes to run. Halting...\n";
+                break;
+            }
+        }
 
         std::cout << "[DEBUG] Got next process: " << next->processId << std::endl;
 
@@ -139,6 +178,9 @@ void OperatingSystem::start()
         std::cout << "[DEBUG] CPU IP before run(): " << std::hex << cpu.getInstructionPointer() << std::endl;
 
         cpu.run();
+
+        std::cout << "[DEBUGYUH] NUMBER OF CYCLES: " << next->clockCycles 
+                  << " for process: " << next->processId << std::endl;
         
         if (cpu.isSleepRequested()) 
         {
@@ -165,6 +207,17 @@ void OperatingSystem::start()
             
             next->contextSwitches++;
             continue;
+        }
+
+        if (cpu.isExpired()) 
+        {
+            std::cout << "[DEBUG] Time quantum expired for Process " << next->processId << "\n";
+            next->saveState(cpu.getRegisters(), cpu.getSignFlag(), cpu.getZeroFlag());
+            next->state = "Ready";
+            scheduler.addProcess(next);  // Put back into ready queue
+            next->contextSwitches++;
+            cpu.clearExpiredFlag();
+            continue;  // Go to next iteration of the loop
         }
 
         signFlag = cpu.getSignFlag();
@@ -227,9 +280,7 @@ void OperatingSystem::start()
     }
     mem.printPagingTable();
     mem.printMemoryMetrics();
-
-
-    
+   
 }
 
 

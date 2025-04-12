@@ -65,7 +65,6 @@ void CPU::executeNextInstruction()
     
     bool shouldIncrementIP = true;
 
-    
   
     switch (static_cast<Opcode>(opcodeByte))
     {
@@ -501,22 +500,40 @@ void CPU::executeNextInstruction()
         registers[11] = ip + 9;
     }
 
+
+    if ( !terminated && current->clockCycles >= current->timeQuantum)
+    {
+        quantumExpired = true;
+    }
 }
 
-void CPU::run() {
+void CPU::run() 
+{
     
     std::cout << "[DEBUG] IP: " << std::hex << registers[11] << std::endl;
+    
+    quantumExpired = false;
+
     while (true) 
     {
         executeNextInstruction();
 
+        if (onCycleCallback) onCycleCallback();
+
+        if (terminated) 
+        {
+            std::cout << "[DEBUG] CPU termination flag set, exit run()\n";
+            return;
+        }
+        
         if (sleepRequested)
         {
             return;
         }
         
-        if (terminated) {
-            std::cout << "[DEBUG] CPU termination flag set, exit run()\n";
+        if (quantumExpired)
+        {
+            std::cout << "[DEBUG] CPU expiration flag set, exit run()\n";
             return;
         }
         

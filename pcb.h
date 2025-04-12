@@ -40,6 +40,7 @@ public:
     void restoreState(uint32_t* cpuRegisters, bool& signFlag, bool& zeroFlag);
     void incrementClockCycle() { clockCycles++; }
     uint32_t getPid() { return processId; }
+    void settimeQuantum( uint32_t time) { timeQuantum = time;}
 
 };
 

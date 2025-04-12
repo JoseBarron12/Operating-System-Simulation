@@ -8,7 +8,7 @@ PCB::PCB(uint32_t id, uint32_t codeSize, uint32_t stackSize, uint32_t dataSize, 
     processMemorySize = codeSize + stackSize + dataSize + heapSize;
     signFlag = false;
     zeroFlag = false;
-    timeQuantum = 5;
+    timeQuantum = 10;
     clockCycles = 0;
     sleepCounter = 0;
     contextSwitches = 0;
