@@ -103,7 +103,10 @@ void CPU::executeNextInstruction()
             break;
 
         case Opcode::Movrm:
-            mem.set32(registers[arg1], registers[arg2]);
+            {
+                uint32_t physical_addr = mem.getaddress(registers[arg1], current->getPid());
+                mem.set32(physical_addr, registers[arg2]);
+            }
             break;
 
         case Opcode::Movmm:
@@ -295,27 +298,48 @@ void CPU::executeNextInstruction()
         case Opcode::SetPriorityI:
             std::cerr << "Warning: SetPriority not implemented in CPU." << std::endl;
             break;
+        
         case Opcode::MapSharedMem:
             {
                 if (!current) break;
-
+            
                 uint32_t virtualSharedAddr = 0xF000 + arg1 * PAGE_SIZE;
-
+            
                 if (!mem.pageExists(virtualSharedAddr)) 
                 {
-                    std::cerr << "ERROR: Shared memory page not mapped globally at 0x" 
-                            << std::hex << virtualSharedAddr << std::dec << std::endl;
-                    break;
+                    if (!mem.hasFreePage()) 
+                    {
+                        uint32_t lru = mem.findLRUPage();
+                        if (lru == UINT32_MAX) 
+                        {
+                            std::cerr << "[FATAL] No memory available and no LRU page to evict for shared page 0x" 
+                                      << std::hex << virtualSharedAddr << std::dec << "\n";
+                            exit(1);
+                        }
+                        mem.swapOutPage(lru);
+                    }
+            
+                    uint32_t physPage = mem.allocatePage();
+                    if (physPage == UINT32_MAX) 
+                    {
+                        std::cerr << "[FATAL] Failed to allocate page for shared memory at 0x" 
+                                  << std::hex << virtualSharedAddr << std::dec << "\n";
+                        exit(1);
+                    }
+            
+                    mem.mapPage(virtualSharedAddr, physPage, -1); // global is -1 pid
                 }
-
+            
                 uint32_t physPage = mem.getPagingTable().at(virtualSharedAddr).physicalPage;
                 mem.mapPage(virtualSharedAddr, physPage, current->getPid());
+            
                 registers[arg2] = virtualSharedAddr;
                 current->workingSetPages.push_back(virtualSharedAddr);
-
+            
                 std::cout << "[SHARED] Process " << current->processId
-                        << " mapped shared page " << arg1
-                        << " at virtual address 0x" << std::hex << virtualSharedAddr << std::dec << std::endl;
+                          << " mapped shared page " << arg1
+                          << " at virtual address 0x" << std::hex << virtualSharedAddr << std::dec << std::endl;
+            
                 break;
             }
             

@@ -5,7 +5,14 @@
 OperatingSystem::OperatingSystem(uint32_t memorySize, const std::string& programFile)
     : mem(memorySize), cpu(mem, scheduler), programFile(programFile) {
     currentMemAddress = 0;
-
+    
+    // memory-mapping service:
+    for (int i = 0; i < 10; ++i) 
+    {
+        uint32_t sharedVirtualAddr = 0xF000 + i * PAGE_SIZE;
+        sharedPages.push_back(sharedVirtualAddr);
+    }
+        
     loadProcess(999, programFile, 4, 512, 1, 512); // load idle process with lowest priority
 }
 
@@ -44,8 +51,6 @@ void OperatingSystem::loadProcess(uint32_t id, const std::string& programFile, u
           << " assigned memory at 0x" << programStartAddress 
           << " - 0x" << (programStartAddress + alignedSize) << std::dec << std::endl;      
 
-    newProgram->loadIntoMemory(mem, programStartAddress, id);
-
     std::unordered_map<uint32_t, PageEntry> pageTable = mem.getPagingTable();
     for (const auto& [virtualAddr, page] : pageTable) 
     {
@@ -78,8 +83,6 @@ void OperatingSystem::start()
         std::cout << "  SharedPage " << i << ": 0x" << std::hex << sharedPages[i] << std::dec << "\n";
     }
 
-    std::vector<PCB*> terminatedProcesses;
-
     PCB* idleProcess = nullptr;
     for (PCB* p : processList) 
     {
@@ -109,7 +112,6 @@ void OperatingSystem::start()
         }
     };
 
-
     while (!processList.empty()) 
     {
         if (processList.size() == 1 && processList[0]->processId == 999) 
@@ -123,6 +125,13 @@ void OperatingSystem::start()
 
 
         PCB* next = scheduler.getNextProcess();
+
+        if (!next->isLoaded) 
+        {
+            next->program->loadIntoMemory(mem, next->registers[11], next->getPid());
+            next->isLoaded = true;
+        }
+        
         
         if (!next || next->processId == 999) 
         {
@@ -199,13 +208,46 @@ void OperatingSystem::start()
         if (cpu.isTerminated()) 
         {
             next->state = "Terminated";
-            std::cout << "[DEBUG] Process " << next->processId << " terminated via EXIT.\n";
             cpu.clearTerminatedFlag();
 
+            std::cout << "\n[PROCESS TERMINATED] PID: " << next->processId << "\n";
+            std::cout << "  → Clock Cycles: " << next->clockCycles << "\n";
+            std::cout << "  → Context Switches: " << next->contextSwitches + 1 << "\n";  // +1 since it's ending
+            int processPageFaults = 0;
+            auto table = mem.getPagingTable();
+            for (const auto& [virtAddr, entry] : table) {
+                if (entry.pid == next->processId && entry.isValid)
+                    processPageFaults++;
+            }
+            std::cout << "  → Page Faults: " << processPageFaults << "\n";
+
+            std::cout << "  → Pages Used:\n";
+            for (const auto& [virtAddr, entry] : table) {
+                if (entry.pid == next->processId) {
+                    std::cout << "    Virtual Page: 0x" << std::hex << virtAddr
+                            << " | Physical Page: " << std::dec << entry.physicalPage
+                            << " | IsValid: " << std::boolalpha << entry.isValid
+                            << " | IsDirty: " << entry.isDirty
+                            << " | LastUsed: " << entry.lastUsedTime << "\n";
+                }
+            }
+
+            std::cout << "  → Heap Allocations:\n";
+            for (const auto& hp : next->heapAllocations) {
+                std::cout << "    Addr: 0x" << std::hex << hp.addr
+                        << ", Size: " << std::dec << hp.size
+                        << ", Used: " << (hp.used ? "Yes" : "No") << "\n";
+            }
+
+            mem.deallocateProcessPages(next->processId);
+            next->workingSetPages.clear();
+
             processList.erase(std::remove(processList.begin(), processList.end(), next), processList.end());
-            terminatedProcesses.push_back(next);
             
             next->contextSwitches++;
+
+            mem.debugPrintFreePages();
+
             continue;
         }
 
@@ -229,55 +271,6 @@ void OperatingSystem::start()
         std::cout << "[DEBUG] End of loop iteration.\n";
     }
 
-    std::cout << "\n=== Process Statistics ===\n";
-
-    for (PCB* process : processList) 
-    {
-        std::cout << "Process " << process->processId << " executed "
-                << process->clockCycles << " cycles, "
-                << process->contextSwitches << " context switches, "
-                << "Final state: " << process->state << "\n";
-        
-        std::cout << "Pages used (virtual addresses):\n";
-        for (size_t i = 0; i < process->workingSetPages.size(); ++i) 
-        {
-                std::cout << "  Page " << i << ": 0x" << std::hex << process->workingSetPages[i] << std::dec << "\n";
-        }        
-        
-        std::cout << "Heap Allocations:\n";
-        for (const auto& hp : process->heapAllocations) 
-        {
-            std::cout << "  Addr: 0x" << std::hex << hp.addr 
-                    << ", Size: " << std::dec << hp.size 
-                    << ", Used: " << (hp.used ? "Yes" : "No") << std::endl;
-        }
-
-
-        delete process;  
-    }
-
-    for (PCB* process : terminatedProcesses) 
-    {
-        std::cout << "Process " << process->processId << " executed "
-                << process->clockCycles << " cycles, "
-                << process->contextSwitches << " context switches, "
-                << "Final state: " << process->state << "\n";
-        
-        std::cout << "Pages used (virtual addresses):\n";
-        for (size_t i = 0; i < process->workingSetPages.size(); ++i) 
-        {
-            std::cout << "  Page " << i << ": 0x" << std::hex << process->workingSetPages[i] << std::dec << "\n";
-        }  
-        
-        std::cout << "Heap Allocations:\n";
-        for (const auto& hp : process->heapAllocations) 
-        {
-            std::cout << "  Addr: 0x" << std::hex << hp.addr 
-                    << ", Size: " << std::dec << hp.size 
-                    << ", Used: " << (hp.used ? "Yes" : "No") << std::endl;
-        }
-        delete process;  
-    }
     mem.printPagingTable();
     mem.printMemoryMetrics();
    

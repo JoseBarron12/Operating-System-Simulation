@@ -34,6 +34,7 @@ public:
     Program* program;
     std::string state;
     std::vector<HeapPage> heapAllocations;
+    bool isLoaded = false;
     
     PCB(uint32_t id, uint32_t codeSize, uint32_t stackSize, uint32_t dataSize, uint32_t priority, Program* prog, uint32_t heapSize);
     void saveState(uint32_t* cpuRegisters, bool signFlag, bool zeroFlag);

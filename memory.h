@@ -56,7 +56,8 @@ public :
     uint32_t findLRUPage(); 
     void swapOutPage(uint32_t virtualAddr);
     uint32_t getFreePageCount() const;
-
+    void deallocateProcessPages(uint32_t pid);
+    void debugPrintFreePages() const;
 
 
 private :

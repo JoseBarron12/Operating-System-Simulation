@@ -159,7 +159,7 @@ void memory::set8(uint32_t addr, uint8_t val)
     }
 }
 
-void memory::set16 (uint32_t addr, uint16_t val)
+void memory::set16(uint32_t addr, uint16_t val)
 {
     set8(addr, val & 0xFF);
     set8(addr + 1, val >> 8);
@@ -225,6 +225,8 @@ uint32_t memory::allocatePage()
         return UINT32_MAX;
     }
 
+    debugPrintFreePages();
+    
     uint32_t page = *freePages.begin();
     freePages.erase(page);
 
@@ -345,4 +347,37 @@ void memory::printMemoryMetrics() const
     std::cout << "Pages Swapped Out: " << pagesSwappedOut << '\n';
     std::cout << "Pages Swapped In:  " << pagesSwappedIn << '\n';
     std::cout << "Free Physical Pages Remaining: " << getFreePageCount() << '\n';
+}
+
+
+void memory::deallocateProcessPages(uint32_t pid)
+{
+    for (auto it = paging_table.begin(); it != paging_table.end(); )
+    {
+        if (it->second.pid == pid)
+        {
+            uint32_t physPage = it->second.physicalPage;
+
+            if (it->second.isValid)
+            {
+                freePages.insert(physPage); // Return physical page to pool
+            }
+
+            it = paging_table.erase(it); // Remove the page mapping
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+void memory::debugPrintFreePages() const
+{
+    std::cout << "[DEBUG] Free Physical Pages After Deallocation: ";
+    for (uint32_t page : freePages)
+    {
+        std::cout << page << " ";
+    }
+    std::cout << std::endl;
 }
