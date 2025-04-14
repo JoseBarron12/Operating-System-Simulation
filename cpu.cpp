@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include <unordered_map>
 
 CPU::CPU(memory& memRef, ProcessScheduler& sched) : mem(memRef), scheduler(sched), systemClock(0), signFlag(false), zeroFlag(false)
 {
@@ -299,49 +300,39 @@ void CPU::executeNextInstruction()
             std::cerr << "Warning: SetPriority not implemented in CPU." << std::endl;
             break;
         
-        case Opcode::MapSharedMem:
+            case Opcode::MapSharedMem:
             {
                 if (!current) break;
             
-                uint32_t virtualSharedAddr = 0xF000 + arg1 * PAGE_SIZE;
+                uint32_t sharedRegion = arg1;
             
-                if (!mem.pageExists(virtualSharedAddr)) 
+                if (sharedRegion < 0 || sharedRegion > 9)  // 0 to 9 for 10 regions
                 {
-                    if (!mem.hasFreePage()) 
-                    {
-                        uint32_t lru = mem.findLRUPage();
-                        if (lru == UINT32_MAX) 
-                        {
-                            std::cerr << "[FATAL] No memory available and no LRU page to evict for shared page 0x" 
-                                      << std::hex << virtualSharedAddr << std::dec << "\n";
-                            exit(1);
-                        }
-                        mem.swapOutPage(lru);
-                    }
-            
-                    uint32_t physPage = mem.allocatePage();
-                    if (physPage == UINT32_MAX) 
-                    {
-                        std::cerr << "[FATAL] Failed to allocate page for shared memory at 0x" 
-                                  << std::hex << virtualSharedAddr << std::dec << "\n";
-                        exit(1);
-                    }
-            
-                    mem.mapPage(virtualSharedAddr, physPage, -1); // global is -1 pid
+                    std::cerr << "[SHARED] Invalid shared memory region number: " << sharedRegion << "\n";
+                    break;
                 }
             
-                uint32_t physPage = mem.getPagingTable().at(virtualSharedAddr).physicalPage;
-                mem.mapPage(virtualSharedAddr, physPage, current->getPid());
+                if (mem.sharedMemoryTable.find(sharedRegion) == mem.sharedMemoryTable.end())
+                {
+                    std::cerr << "[SHARED] Shared memory region " << sharedRegion << " does not exist!\n";
+                    break;
+                }
+            
+                uint32_t virtualSharedAddr = 0xF000 + sharedRegion * PAGE_SIZE;
+                uint32_t physAddr = mem.sharedMemoryTable[sharedRegion].physicalPage;
+            
+                mem.mapPage(virtualSharedAddr, physAddr / PAGE_SIZE, current->getPid());
             
                 registers[arg2] = virtualSharedAddr;
                 current->workingSetPages.push_back(virtualSharedAddr);
             
                 std::cout << "[SHARED] Process " << current->processId
-                          << " mapped shared page " << arg1
-                          << " at virtual address 0x" << std::hex << virtualSharedAddr << std::dec << std::endl;
-            
+                          << " mapped shared region " << sharedRegion
+                          << " to virtual address 0x" << std::hex << virtualSharedAddr << std::dec << "\n";
                 break;
             }
+            
+            
             
         case Opcode::AcquireLock:
             {

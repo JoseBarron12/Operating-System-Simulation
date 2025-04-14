@@ -5,19 +5,8 @@
 OperatingSystem::OperatingSystem(uint32_t memorySize, const std::string& programFile)
     : mem(memorySize), cpu(mem, scheduler), programFile(programFile) {
     currentMemAddress = 0;
-    
-    // memory-mapping service:
-    for (int i = 0; i < 10; ++i) 
-    {
-        uint32_t sharedVirtualAddr = 0xF000 + i * PAGE_SIZE;
-        sharedPages.push_back(sharedVirtualAddr);
-    }
         
     loadProcess(999, programFile, 4, 512, 1, 512); // load idle process with lowest priority
-}
-
-const std::vector<uint32_t>& OperatingSystem::getSharedPages() const {
-    return sharedPages;
 }
 
 
@@ -69,7 +58,7 @@ void OperatingSystem::start()
 {
     std::cout << "Starting OS with Process and Program Management...\n";
 
-    uint32_t usedMemory = currentMemAddress + sharedPages.size() * PAGE_SIZE;
+    uint32_t usedMemory = currentMemAddress;
     uint32_t totalMemory = mem.get_size();
     uint32_t remainingMemory = totalMemory - usedMemory;
 
@@ -78,10 +67,6 @@ void OperatingSystem::start()
     std::cout << "[MEMORY] Remaining memory: " << remainingMemory << " bytes\n";
         
     std::cout << "[MEMORY] Shared memory regions mapped at: \n";
-    for (size_t i = 0; i < sharedPages.size(); ++i) 
-    {
-        std::cout << "  SharedPage " << i << ": 0x" << std::hex << sharedPages[i] << std::dec << "\n";
-    }
 
     PCB* idleProcess = nullptr;
     for (PCB* p : processList) 

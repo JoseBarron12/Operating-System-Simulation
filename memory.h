@@ -20,6 +20,12 @@ struct PageEntry
     uint64_t lastUsedTime; 
 };
 
+struct SharedRegion 
+{
+    uint32_t physicalPage;
+    bool allocated; 
+};
+
 
 class memory : public hex
 {
@@ -58,6 +64,8 @@ public :
     uint32_t getFreePageCount() const;
     void deallocateProcessPages(uint32_t pid);
     void debugPrintFreePages() const;
+    
+    std::unordered_map<uint32_t, SharedRegion> sharedMemoryTable;
 
 
 private :
@@ -70,7 +78,7 @@ private :
     uint32_t pageFaultCount = 0;
     uint32_t pagesSwappedOut = 0;
     uint32_t pagesSwappedIn = 0;
-
+    
 };    
 
 #endif

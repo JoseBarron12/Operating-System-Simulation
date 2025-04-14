@@ -18,7 +18,19 @@ memory::memory(uint32_t siz )
     mem.resize(pages * PAGE_SIZE, 0x00);
 
     for (uint32_t i = 0; i < pages; ++i)
+    {
         freePages.insert(i);
+    }  
+    
+    uint32_t sharedMemStart = mem.size();
+    mem.resize(mem.size() + (1000 * 10), 0x00);
+    for (int i = 0; i < 10; ++i) 
+    {
+        uint32_t baseAddr = sharedMemStart + (i * 1000);
+        sharedMemoryTable[i] = { baseAddr, true }; 
+        std::cout << "[SHARED INIT] Region " << i << " starts at physical address 0x" 
+                << std::hex << baseAddr << std::dec << "\n";
+    }
 }
 
 memory::~memory()
@@ -93,7 +105,7 @@ uint32_t memory::getaddress(uint32_t virtualAddr, uint32_t pid)
     if (!entry.isValid) 
     {
         std::cout << "[PAGE FAULT] Page 0x" << std::hex << start_address << " not in memory.\n";
-        pageFaultCount++; // ✅ Count the page fault
+        pageFaultCount++; 
 
         if (!hasFreePage()) 
         {
@@ -119,7 +131,7 @@ uint32_t memory::getaddress(uint32_t virtualAddr, uint32_t pid)
 
         if (swapSpace.count(start_address)) 
         {
-            pagesSwappedIn++; // ✅ Count pages swapped in
+            pagesSwappedIn++; 
             const std::vector<uint8_t>& data = swapSpace[start_address];
             for (uint32_t i = 0; i < PAGE_SIZE; ++i)
             {
@@ -310,7 +322,7 @@ void memory::swapOutPage(uint32_t virtualAddr)
     PageEntry& entry = paging_table[virtualAddr];
     if (!entry.isValid) return;
 
-    pagesSwappedOut++; // ✅ Count pages swapped out
+    pagesSwappedOut++; 
 
     if (entry.isDirty) 
     {
