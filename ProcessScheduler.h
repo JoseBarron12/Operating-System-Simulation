@@ -23,6 +23,7 @@ public:
     PCB* getNextProcess();
     void switchProcess(uint32_t* cpuRegisters, bool& signFlag, bool& zeroFlag);
     PCB* getRunningProcess();
+    PCB* getProcessByPid(uint32_t pid);
 };
 
 #endif // PROCESS_SCHEDULER_H

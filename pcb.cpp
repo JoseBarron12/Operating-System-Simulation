@@ -14,6 +14,7 @@ PCB::PCB(uint32_t id, uint32_t codeSize, uint32_t stackSize, uint32_t dataSize, 
     clockCycles = 0;
     sleepCounter = 0;
     contextSwitches = 0;
+    originalPriority = priority;
 
     registers[11] = id;
     registers[12] = codeSize;

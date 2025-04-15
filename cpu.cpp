@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include <unordered_map>
+#include <algorithm>
 
 CPU::CPU(memory& memRef, ProcessScheduler& sched) : mem(memRef), scheduler(sched), systemClock(0), signFlag(false), zeroFlag(false)
 {
@@ -19,16 +20,34 @@ void CPU::loadProgram(std::vector<uint8_t>& program)
     }
 }
 
-void CPU::releaseAllHeldLocks(uint32_t pid)
+void CPU::releaseAllHeldLocks(uint32_t pid) 
 {
-    for (int i = 0; i < locks.size(); i++)
+    for (int i = 0; i < locks.size(); ++i) 
     {
-        if (locks[i] == static_cast<int32_t>(pid))
+        if (locks[i] == static_cast<int32_t>(pid)) 
         {
             locks[i] = -1;
+
+            auto& queue = lockWaitQueues[i];
+            if (!queue.empty()) 
+            {
+                auto it = std::max_element(queue.begin(), queue.end(), [](PCB* a, PCB* b)
+                {
+                    return a->priority < b->priority;
+                });
+
+                PCB* next = *it;
+                queue.erase(it);
+                locks[i] = next->getPid();
+                next->state = "Ready";
+                scheduler.addProcess(next);
+
+                std::cout << "[LOCK] Lock " << i << " reassigned to process " << next->getPid() << " after " << pid << " exited\n";
+            }
         }
     }
 }
+
 
 
 void CPU::executeNextInstruction()
@@ -300,7 +319,7 @@ void CPU::executeNextInstruction()
             std::cerr << "Warning: SetPriority not implemented in CPU." << std::endl;
             break;
         
-            case Opcode::MapSharedMem:
+        case Opcode::MapSharedMem:
             {
                 if (!current) break;
             
@@ -331,47 +350,131 @@ void CPU::executeNextInstruction()
                           << " to virtual address 0x" << std::hex << virtualSharedAddr << std::dec << "\n";
                 break;
             }
-            
-            
-            
+              
         case Opcode::AcquireLock:
             {
                 uint32_t lockNum = registers[arg1];
-                if (lockNum < locks.size() && locks[lockNum] == -1)
+                if (lockNum < 1 || lockNum > 10) break;
+            
+                if (locks[lockNum] == static_cast<int32_t>(current->getPid())) break;
+            
+                if (locks[lockNum] == -1) 
                 {
-                    locks[lockNum] = registers[12]; 
-                    std::cout << "[LOCK] Process " << registers[12] << " acquired lock " << lockNum << std::endl;
+
+                    locks[lockNum] = current->getPid();
+                    std::cout << "[LOCK] Process " << current->getPid() << " acquired lock " << lockNum << "\n";
+                } 
+                else 
+                {
+                    PCB* owner = scheduler.getProcessByPid(locks[lockNum]);
+                    if (owner && owner->priority < current->priority) 
+                    {
+                        std::cout << "[PRIORITY INVERSION] Boosting priority of process " 
+                                  << owner->processId << " from " << owner->priority 
+                                  << " to " << current->priority << "\n";
+                        owner->priority = current->priority;
+                    }
+            
+                    current->state = "Waiting";
+                    current->waitingForLock = true;
+                    lockWaitQueues[lockNum].push_back(current);
+                    std::cout << "[LOCK] Process " << current->getPid() << " waiting on lock " << lockNum << "\n";
+                    waitingOnLock = true;
+                    return; 
                 }
                 break;
             }
-        case Opcode::AcquireLockI:
+            
+         case Opcode::AcquireLockI:
             {
-                if (arg1 < locks.size() && locks[arg1] == -1)
+                if (arg1 < 1 || arg1 > 10) break;
+            
+                if (locks[arg1] == static_cast<int32_t>(current->getPid())) break;
+            
+                if (locks[arg1] == -1) 
                 {
-                    locks[arg1] = registers[12];
-                    std::cout << "[LOCK] Process " << registers[12] << " acquired lock " << arg1 << std::endl;
+                    locks[arg1] = current->getPid();
+                    std::cout << "[LOCK] Process " << current->getPid() << " acquired lock " << arg1 << "\n";
+                } 
+                else 
+                {
+                    PCB* owner = scheduler.getProcessByPid(locks[arg1]);
+                    if (owner && owner->priority < current->priority) 
+                    {
+                        std::cout << "[PRIORITY INVERSION] Boosting priority of process " 
+                                  << owner->processId << " from " << owner->priority 
+                                  << " to " << current->priority << "\n";
+                        owner->priority = current->priority;
+                    }
+            
+                    current->state = "Waiting";
+                    current->waitingForLock = true;
+                    
+                    lockWaitQueues[arg1].push_back(current);
+                    std::cout << "[LOCK] Process " << current->getPid() << " waiting on lock " << arg1 << "\n";
+                    waitingOnLock = true;
+                    return; 
                 }
                 break;
             }
+            
         case Opcode::ReleaseLock:
             {
                 uint32_t lockNum = registers[arg1];
-                if (lockNum < locks.size() && locks[lockNum] == registers[12])
+                if (lockNum < 1 || lockNum > 10) break;
+
+                if (locks[lockNum] != static_cast<int32_t>(current->getPid())) break;
+
+                locks[lockNum] = -1;
+
+                std::cout << "[LOCK] Process " << current->getPid() << " released lock " << lockNum << "\n";
+
+                auto& queue = lockWaitQueues[lockNum];
+                if (!queue.empty()) 
                 {
-                    locks[lockNum] = -1;
-                    std::cout << "[LOCK] Process " << registers[12] << " released lock " << lockNum << std::endl;
+                    auto it = std::max_element(queue.begin(), queue.end(), [](PCB* a, PCB* b) {
+                        return a->priority < b->priority;
+                    });
+
+                    PCB* next = *it;
+                    queue.erase(it);
+                    locks[lockNum] = next->getPid();
+                    next->state = "Ready";
+                    next->waitingForLock = false;
+                    scheduler.addProcess(next);
+                    std::cout << "[LOCK] Process " << next->getPid() << " granted lock " << lockNum << "\n";
                 }
                 break;
             }
+
         case Opcode::ReleaseLockI:
             {
-                if (arg1 < locks.size() && locks[arg1] == registers[12])
+                if (arg1 < 1 || arg1 > 10) break;
+
+                if (locks[arg1] != static_cast<int32_t>(current->getPid())) break;
+
+                locks[arg1] = -1;
+
+                std::cout << "[LOCK] Process " << current->getPid() << " released lock " << arg1 << "\n";
+
+                auto& queue = lockWaitQueues[arg1];
+                if (!queue.empty()) 
                 {
-                    locks[arg1] = -1;
-                    std::cout << "[LOCK] Process " << registers[12] << " released lock " << arg1 << std::endl;
+                    auto it = std::max_element(queue.begin(), queue.end(), [](PCB* a, PCB* b) {
+                        return a->priority < b->priority;
+                    });
+
+                    PCB* next = *it;
+                    queue.erase(it);
+                    locks[arg1] = next->getPid();
+                    next->state = "Ready";
+                    next->waitingForLock = false;
+                    scheduler.addProcess(next);
+                    std::cout << "[LOCK] Process " << next->getPid() << " granted lock " << arg1 << "\n";
                 }
                 break;
             }
+
         case Opcode::SignalEvent:
             {
                 uint32_t eventIndex = registers[arg1];
@@ -551,7 +654,11 @@ void CPU::run()
             std::cout << "[DEBUG] CPU expiration flag set, exit run()\n";
             return;
         }
-        
+        if (waitingOnLock) 
+        {
+            std::cout << "[DEBUG] CPU waiting on lock, exit run()\n";
+            return;
+        }
         
     }
 }

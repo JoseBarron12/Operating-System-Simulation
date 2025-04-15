@@ -1,0 +1,6 @@
+movi r1, 1         
+AcquireLock r1      
+movi r2, 999        
+printr r2           
+ReleaseLock r1     
+exit

@@ -11,7 +11,7 @@ PCB* ProcessScheduler::getNextProcess()
         PCB* next = readyQueue.top();
         readyQueue.pop();
 
-        if (next->state != "Terminated") 
+        if (next->state != "Terminated" || next->state == "Waiting") 
         {
             runningProcess = next;
             next->state = "Running";
@@ -61,3 +61,16 @@ PCB* ProcessScheduler::getRunningProcess()
 {
     return runningProcess;
 }
+
+PCB* ProcessScheduler::getProcessByPid(uint32_t pid) {
+    if (runningProcess && runningProcess->processId == pid) return runningProcess;
+    
+    std::priority_queue<PCB*, std::vector<PCB*>, ComparePriority> tempQueue = readyQueue;
+    while (!tempQueue.empty()) {
+        PCB* p = tempQueue.top();
+        tempQueue.pop();
+        if (p->processId == pid) return p;
+    }
+    return nullptr;
+}
+

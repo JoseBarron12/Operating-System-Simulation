@@ -111,23 +111,17 @@ void OperatingSystem::start()
 
         PCB* next = scheduler.getNextProcess();
 
-        if (!next->isLoaded) 
-        {
-            next->program->loadIntoMemory(mem, next->registers[11], next->getPid());
-            next->isLoaded = true;
-        }
-        
-        
         if (!next || next->processId == 999) 
         {
-            bool allSleeping = true;
+            bool allBlocked = true;
             int minSleep = INT32_MAX;
 
             for (PCB* p : processList) 
             {
-                if (p->state != "Sleeping" && p->state != "Terminated" && p->processId != 999) 
+                if (p->state != "Sleeping" && p->state != "Waiting" &&
+                    p->state != "Terminated" && p->processId != 999) 
                 {
-                    allSleeping = false;
+                    allBlocked = false;
                     break;
                 }
 
@@ -137,17 +131,18 @@ void OperatingSystem::start()
                 }
             }
 
-            std::cout << "[SLEEPING CHECK]: " << std::boolalpha << allSleeping << std::endl;
+            std::cout << "[BLOCKED CHECK]: " << std::boolalpha << allBlocked << std::endl;
 
-            if (allSleeping && idleProcess && idleProcess->state != "Terminated") 
+            if (allBlocked && idleProcess && idleProcess->state != "Terminated") 
             {
                 next = idleProcess;
                 if (minSleep != INT32_MAX) 
                 {
                     next->settimeQuantum(minSleep);
-                } else 
+                } 
+                else 
                 {
-                    next->settimeQuantum(1);  // fallback to at least one cycle
+                    next->settimeQuantum(1);  // fallback
                 }
                 std::cout << "[IDLE] Running idle process for " << minSleep << " cycles...\n";
             } 
@@ -157,6 +152,13 @@ void OperatingSystem::start()
                 break;
             }
         }
+
+        if (!next->isLoaded) 
+        {
+            next->program->loadIntoMemory(mem, next->registers[11], next->getPid());
+            next->isLoaded = true;
+        }
+
 
         std::cout << "[DEBUG] Got next process: " << next->processId << std::endl;
 
@@ -233,6 +235,17 @@ void OperatingSystem::start()
 
             mem.debugPrintFreePages();
 
+            continue;
+        }
+
+        if (cpu.isWaitingOnLock())
+        {
+            std::cout << "[DEBUG] CPU waiting on lock, exit run()\n";
+            next->saveState(cpu.getRegisters(), cpu.getSignFlag(), cpu.getZeroFlag());
+            next->state = "Waiting";
+            std::cout << "[DEBUG] Process " << next->processId << " is now Waiting for Lock\n";
+            next->contextSwitches++; 
+            cpu.clearWaitingOnLock();
             continue;
         }
 

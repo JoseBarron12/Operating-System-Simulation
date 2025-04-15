@@ -34,6 +34,9 @@ private:
     bool quantumExpired = false;
 
     std::vector<int32_t> locks;
+    std::array<std::vector<PCB*>, 11> lockWaitQueues; 
+    bool waitingOnLock = false;
+
 
     std::array<bool, 10> eventStates;                   
     std::array<std::vector<PCB*>, 10> eventWaitQueues;
@@ -74,6 +77,10 @@ public:
     u_int32_t* getRegisters() { return registers; }
 
     std::function<void()> onCycleCallback;
+   
+    bool isWaitingOnLock() const { return waitingOnLock; }
+    void setWaitingOnLock(bool value) { waitingOnLock = value; }
+    void clearWaitingOnLock() { waitingOnLock = false; }
 
 };
 
