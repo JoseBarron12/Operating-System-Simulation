@@ -177,6 +177,13 @@ void OperatingSystem::start()
 
         std::cout << "[DEBUGYUH] NUMBER OF CYCLES: " << next->clockCycles 
                   << " for process: " << next->processId << std::endl;
+       
+        if (next->processId == 999)
+        {
+            std::cout << "[IDLE CLEANUP] Deallocating memory used by idle process...\n";
+            mem.deallocateProcessPages(next->processId);
+            next->workingSetPages.clear();
+        }          
         
         if (cpu.isSleepRequested()) 
         {
