@@ -1,0 +1,4 @@
+movi r1 1280     
+movmr r2 r1         
+printr r2
+exit

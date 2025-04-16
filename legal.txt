@@ -1,0 +1,8 @@
+movi r1 1280
+movi r2 $123
+movrm r1 r2
+movi r3 $3
+sleep r3 
+printr r3
+sleep r3
+exit

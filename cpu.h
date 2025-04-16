@@ -12,6 +12,7 @@
 #include "ProcessScheduler.h"
 #include <functional>
 
+class OperatingSystem; 
 
 class CPU 
 {
@@ -40,6 +41,10 @@ private:
 
     std::array<bool, 10> eventStates;                   
     std::array<std::vector<PCB*>, 10> eventWaitQueues;
+
+    OperatingSystem* os;
+
+    bool preemptNow = false;
 
 public:
     CPU(memory& memRef, ProcessScheduler& sched);
@@ -81,6 +86,12 @@ public:
     bool isWaitingOnLock() const { return waitingOnLock; }
     void setWaitingOnLock(bool value) { waitingOnLock = value; }
     void clearWaitingOnLock() { waitingOnLock = false; }
+
+    void setOSPointer(OperatingSystem* os) { this->os = os; }
+
+    void triggerPreemption() { preemptNow = true; }
+    void clearPreemption() { preemptNow = false; }
+    bool isPreempting() const { return preemptNow; }
 
 };
 

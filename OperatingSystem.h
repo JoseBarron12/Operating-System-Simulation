@@ -10,8 +10,7 @@
 
 class OperatingSystem 
 {
-private:
-    CPU cpu;           
+private:       
     memory mem;    
     ProcessScheduler scheduler;
     std::vector<PCB*> processList;
@@ -19,8 +18,10 @@ private:
     uint32_t currentMemAddress = 0;
 
 public:
+    CPU cpu; 
     OperatingSystem(uint32_t memorySize, const std::string& programFile);
     void loadProcess(uint32_t id, const std::string& programFile, uint32_t stackSize, uint32_t dataSize, uint32_t priority, uint32_t HeapSize);
+    bool terminateProcessByPid(uint32_t pid);
     void start();  
 };
 

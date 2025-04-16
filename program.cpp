@@ -123,7 +123,7 @@ Opcode Program::convertString(const std::string instruction)
         {"MapSharedMem", MapSharedMem}, {"AcquireLock", AcquireLock}, {"AcquireLockI", AcquireLockI},
         {"ReleaseLock", ReleaseLock}, {"ReleaseLockI", ReleaseLockI}, {"SignalEvent", SignalEvent},
         {"SignalEventI", SignalEventI}, {"WaitEvent", WaitEvent}, {"WaitEventI", WaitEventI},
-        {"Alloc", Alloc}, {"FreeMemory", FreeMemory}
+        {"Alloc", Alloc}, {"FreeMemory", FreeMemory}, {"TerminateProcess", TerminateProcess}
     };
 
     auto it = opcodeMap.find(instruction);

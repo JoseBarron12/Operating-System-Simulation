@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 
         os.loadProcess(i + 1, filename, 4, 512, priority, 512);
     }
-    
+    os.cpu.setOSPointer(&os); 
     os.start();
     return 0;
 }

@@ -51,7 +51,8 @@ enum Opcode {
     WaitEvent = 0x2F,
     WaitEventI = 0x30,
     Alloc = 0x31,
-    FreeMemory = 0x32
+    FreeMemory = 0x32,
+    TerminateProcess = 0x33
 };
 
 

@@ -92,6 +92,13 @@ void OperatingSystem::start()
                     p->state = "Ready";
                     scheduler.addProcess(p);
                     std::cout << "[WAKE UP] Process " << p->processId << " is now Ready\n";
+                    
+                    if (p->priority > p->processId) 
+                    {
+                        std::cout << "[PREEMPTION] Higher-priority process " << p->processId 
+                                  << " is waking up. Forcing CPU to yield.\n";
+                        cpu.triggerPreemption();
+                    }
                 }
             }
         }
@@ -178,6 +185,18 @@ void OperatingSystem::start()
         std::cout << "[DEBUGYUH] NUMBER OF CYCLES: " << next->clockCycles 
                   << " for process: " << next->processId << std::endl;
        
+        if (cpu.isPreempting())
+        {
+            std::cout << "[DEBUG] CPU preempted. Re-scheduling immediately.\n";
+            cpu.clearPreemption();
+
+            next->saveState(cpu.getRegisters(), cpu.getSignFlag(), cpu.getZeroFlag());
+            next->state = "Ready";
+            scheduler.addProcess(next);
+
+            continue;  
+        }
+        
         if (next->processId == 999)
         {
             std::cout << "[IDLE CLEANUP] Deallocating memory used by idle process...\n";
@@ -281,6 +300,59 @@ void OperatingSystem::start()
    
 }
 
+bool OperatingSystem::terminateProcessByPid(uint32_t pid)
+{
+    auto it = std::find_if(processList.begin(), processList.end(),
+        [pid](PCB* p) { return p->processId == pid; });
+
+    if (it != processList.end()) 
+    {
+        PCB* next = *it;
+        next->state = "Terminated";
+        cpu.clearTerminatedFlag();
+        std::cout << "[PROCESS KILLED] PID: " << next->processId << " terminated by another process\n";
+        std::cout << "\n[PROCESS TERMINATED] PID: " << next->processId << "\n";
+        std::cout << "  → Clock Cycles: " << next->clockCycles << "\n";
+        std::cout << "  → Context Switches: " << next->contextSwitches + 1 << "\n";  // +1 since it's ending
+        int processPageFaults = 0;
+        auto table = mem.getPagingTable();
+        for (const auto& [virtAddr, entry] : table) 
+        {
+            if (entry.pid == next->processId && entry.isValid)
+                    processPageFaults++;
+        }
+        
+        std::cout << "  → Page Faults: " << processPageFaults << "\n";
+
+        std::cout << "  → Pages Used:\n";
+        for (const auto& [virtAddr, entry] : table) 
+        {
+            if (entry.pid == next->processId)
+            {
+                std::cout << "    Virtual Page: 0x" << std::hex << virtAddr
+                          << " | Physical Page: " << std::dec << entry.physicalPage
+                          << " | IsValid: " << std::boolalpha << entry.isValid
+                          << " | IsDirty: " << entry.isDirty
+                          << " | LastUsed: " << entry.lastUsedTime << "\n";
+                
+            }
+        }
+
+        std::cout << "  → Heap Allocations:\n";
+        for (const auto& hp : next->heapAllocations) 
+        {
+            std::cout << "    Addr: 0x" << std::hex << hp.addr
+                      << ", Size: " << std::dec << hp.size
+                      << ", Used: " << (hp.used ? "Yes" : "No") << "\n";
+        }
+
+        mem.deallocateProcessPages(next->processId);
+        next->workingSetPages.clear();
+        processList.erase(it);
+        return true;
+    }
+    return false;
+}
 
 
 

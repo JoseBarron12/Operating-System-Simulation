@@ -102,6 +102,15 @@ uint32_t memory::getaddress(uint32_t virtualAddr, uint32_t pid)
 
     PageEntry& entry = paging_table[start_address];
 
+    if (entry.pid != pid && entry.pid != static_cast<uint32_t>(-1)) 
+    {
+        std::cerr << "[ILLEGAL ACCESS] Process " << pid 
+                << " attempted access to virtual address 0x" << std::hex << virtualAddr 
+                << " owned by PID " << entry.pid << std::dec << "\n";
+
+        throw std::runtime_error("Illegal memory access by process");
+    }
+    
     if (!entry.isValid) 
     {
         std::cout << "[PAGE FAULT] Page 0x" << std::hex << start_address << " not in memory.\n";
