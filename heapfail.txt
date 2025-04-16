@@ -1,0 +1,4 @@
+movi r0, 600    
+Alloc r0, r1    
+printr r1        
+exit

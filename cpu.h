@@ -46,6 +46,9 @@ private:
 
     bool preemptNow = false;
 
+    bool waitingOnEvent = false;
+
+
 public:
     CPU(memory& memRef, ProcessScheduler& sched);
     void loadProgram(std::vector<uint8_t>& program);
@@ -92,6 +95,11 @@ public:
     void triggerPreemption() { preemptNow = true; }
     void clearPreemption() { preemptNow = false; }
     bool isPreempting() const { return preemptNow; }
+
+    void requestEventWait() { waitingOnEvent = true; }
+    bool isWaitingOnEvent() const { return waitingOnEvent; }
+    void clearWaitingOnEvent() { waitingOnEvent = false; }
+
 
 };
 

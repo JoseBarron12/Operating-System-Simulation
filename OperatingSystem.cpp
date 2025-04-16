@@ -185,6 +185,7 @@ void OperatingSystem::start()
         std::cout << "[DEBUGYUH] NUMBER OF CYCLES: " << next->clockCycles 
                   << " for process: " << next->processId << std::endl;
        
+
         if (cpu.isPreempting())
         {
             std::cout << "[DEBUG] CPU preempted. Re-scheduling immediately.\n";
@@ -274,6 +275,17 @@ void OperatingSystem::start()
             cpu.clearWaitingOnLock();
             continue;
         }
+
+        if (cpu.isWaitingOnEvent()) 
+        {
+            next->saveState(cpu.getRegisters(), cpu.getSignFlag(), cpu.getZeroFlag());
+            next->state = "Waiting";
+            std::cout << "[DEBUG] Process " << next->processId << " is now Waiting for Event\n";
+            next->contextSwitches++; 
+            cpu.clearWaitingOnEvent();
+            continue;
+        }
+        
 
         if (cpu.isExpired()) 
         {

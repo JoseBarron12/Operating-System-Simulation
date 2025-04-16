@@ -104,15 +104,38 @@ void CPU::executeNextInstruction()
                 registers[arg1] += registers[arg2];
                 break;
 
-            case Opcode::Pushr:
-                registers[13] -= 4;  // Decrement stack pointer first
-                mem.set32(registers[13], registers[arg1]);  
-                break;
-
-            case Opcode::Pushi:
-                registers[13] -= 4;  
-                mem.set32(registers[13], arg1);
-                break;
+            case Opcode::Pushr: {
+                    registers[13] -= 4;  // Decrement SP
+                
+                    // Stack overflow check
+                    if (registers[13] < current->heapEnd) {
+                        std::cerr << "[STACK OVERFLOW] Process " << current->processId
+                                  << " SP=0x" << std::hex << registers[13]
+                                  << " went below heapEnd=0x" << current->heapEnd << std::dec << "\n";
+                        terminated = true; 
+                        return;
+                    }
+                
+                    mem.set32(registers[13], registers[arg1]);
+                    break;
+                }
+                
+            case Opcode::Pushi: {
+                    registers[13] -= 4;
+                
+                    // Stack overflow check
+                    if (registers[13] < current->heapEnd) {
+                        std::cerr << "[STACK OVERFLOW] Process " << current->processId
+                                  << " SP=0x" << std::hex << registers[13]
+                                  << " went below heapEnd=0x" << current->heapEnd << std::dec << "\n";
+                        terminated = true;  
+                        return;
+                    }
+                
+                    mem.set32(registers[13], arg1);
+                    break;
+                }
+                
 
             case Opcode::Movi:
                 registers[arg1] = arg2;
@@ -525,6 +548,7 @@ void CPU::executeNextInstruction()
                             current->state = "Waiting";
                             eventWaitQueues[eventIndex].push_back(current);
                             std::cout << "[EVENT] Process " << current->processId << " waiting on event " << eventIndex << "\n";
+                            requestEventWait();
                             return; // yield for context switch
                         }
                     }
@@ -541,6 +565,7 @@ void CPU::executeNextInstruction()
                             current->state = "Waiting";
                             eventWaitQueues[arg1].push_back(current);
                             std::cout << "[EVENT] Process " << current->processId << " waiting on event " << arg1 << "\n";
+                            requestEventWait();
                             return; // yield for context switch
                         }
                     }
@@ -699,6 +724,12 @@ void CPU::run()
             std::cout << "[DEBUG] CPU waiting on lock, exit run()\n";
             return;
         }
+        if (waitingOnEvent) 
+        {
+            std::cout << "[DEBUG] CPU waiting on event, exit run()\n";
+            return;
+        }
+
         
     }
 }
