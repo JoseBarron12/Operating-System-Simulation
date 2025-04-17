@@ -669,17 +669,30 @@ void CPU::executeNextInstruction()
     }
     catch (const std::exception& e)
     {
-        PCB* current = scheduler.getRunningProcess();
-        if (current)
+        if (std::string(e.what()) == "BLOCKED_PAGE_FAULT")
         {
-            std::cerr << "[CPU ERROR] " << e.what() << "\n";
-            std::cerr << "[CPU STATE] Terminating process " << current->getPid() << "\n";
-            for (int i = 0; i < 15; ++i)
+            PCB* current = scheduler.getRunningProcess();
+            if (current)
             {
-                std::cerr << "  Register[" << i << "] = 0x" << std::hex << registers[i] << std::dec << "\n";
+                std::cout << "[MEMORY BLOCK] Process " << current->processId << " is now Waiting for Memory\n";
+                blockedOnMemory = true;
             }
+            
+        }
+        else
+        {
+            PCB* current = scheduler.getRunningProcess();
+            if (current)
+            {
+                std::cerr << "[CPU ERROR] " << e.what() << "\n";
+                std::cerr << "[CPU STATE] Terminating process " << current->getPid() << "\n";
+                for (int i = 0; i < 15; ++i)
+                {
+                    std::cerr << "  Register[" << i << "] = 0x" << std::hex << registers[i] << std::dec << "\n";
+                }
 
-            terminated = true;
+                terminated = true;
+            }
         }
     }
 }
@@ -729,8 +742,10 @@ void CPU::run()
             std::cout << "[DEBUG] CPU waiting on event, exit run()\n";
             return;
         }
-
-        
+        if (blockedOnMemory)
+        {
+            return;
+        }
     }
 }
 

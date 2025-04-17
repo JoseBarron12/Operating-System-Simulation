@@ -11,6 +11,8 @@
 
 #define PAGE_SIZE 256
 
+class OperatingSystem; 
+
 struct PageEntry 
 {
     uint32_t physicalPage;
@@ -25,7 +27,6 @@ struct SharedRegion
     uint32_t physicalPage;
     bool allocated; 
 };
-
 
 class memory : public hex
 {
@@ -65,6 +66,8 @@ public :
     void deallocateProcessPages(uint32_t pid);
     void debugPrintFreePages() const;
     
+    void setOSPointer(OperatingSystem* os) { this->os = os; }
+    
     std::unordered_map<uint32_t, SharedRegion> sharedMemoryTable;
 
 
@@ -78,6 +81,7 @@ private :
     uint32_t pageFaultCount = 0;
     uint32_t pagesSwappedOut = 0;
     uint32_t pagesSwappedIn = 0;
+    OperatingSystem* os;
     
 };    
 

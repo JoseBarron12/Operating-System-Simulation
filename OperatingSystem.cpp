@@ -102,6 +102,7 @@ void OperatingSystem::start()
                 }
             }
         }
+
     };
 
     while (!processList.empty()) 
@@ -143,6 +144,8 @@ void OperatingSystem::start()
             if (allBlocked && idleProcess && idleProcess->state != "Terminated") 
             {
                 next = idleProcess;
+                
+                
                 if (minSleep != INT32_MAX) 
                 {
                     next->settimeQuantum(minSleep);
@@ -162,8 +165,19 @@ void OperatingSystem::start()
 
         if (!next->isLoaded) 
         {
-            next->program->loadIntoMemory(mem, next->registers[11], next->getPid());
-            next->isLoaded = true;
+            try 
+            {
+                next->program->loadIntoMemory(mem, next->registers[11], next->getPid());
+                next->isLoaded = true;
+            } 
+            catch (const std::exception& e) // always means a blocked request
+            {
+                next->state = "Waiting";
+                next->isBlocked = true;
+                std::cout << "[MEMORY BLOCK] Process " << next->processId << " is now Waiting for Memory\n";
+                continue;
+            }
+             
         }
 
 
@@ -185,7 +199,8 @@ void OperatingSystem::start()
         std::cout << "[DEBUGYUH] NUMBER OF CYCLES: " << next->clockCycles 
                   << " for process: " << next->processId << std::endl;
        
-
+        cleanupIdleProcessMemory(next);
+        
         if (cpu.isPreempting())
         {
             std::cout << "[DEBUG] CPU preempted. Re-scheduling immediately.\n";
@@ -194,16 +209,9 @@ void OperatingSystem::start()
             next->saveState(cpu.getRegisters(), cpu.getSignFlag(), cpu.getZeroFlag());
             next->state = "Ready";
             scheduler.addProcess(next);
-
             continue;  
         }
-        
-        if (next->processId == 999)
-        {
-            std::cout << "[IDLE CLEANUP] Deallocating memory used by idle process...\n";
-            mem.deallocateProcessPages(next->processId);
-            next->workingSetPages.clear();
-        }          
+                  
         
         if (cpu.isSleepRequested()) 
         {
@@ -216,6 +224,8 @@ void OperatingSystem::start()
             
             next->contextSwitches++; 
             cpu.clearSleepRequest();
+            
+            
             continue;
         }
         
@@ -262,6 +272,8 @@ void OperatingSystem::start()
 
             mem.debugPrintFreePages();
 
+            unblockProcesses();
+
             continue;
         }
 
@@ -273,6 +285,7 @@ void OperatingSystem::start()
             std::cout << "[DEBUG] Process " << next->processId << " is now Waiting for Lock\n";
             next->contextSwitches++; 
             cpu.clearWaitingOnLock();
+            
             continue;
         }
 
@@ -283,10 +296,10 @@ void OperatingSystem::start()
             std::cout << "[DEBUG] Process " << next->processId << " is now Waiting for Event\n";
             next->contextSwitches++; 
             cpu.clearWaitingOnEvent();
+            
             continue;
         }
         
-
         if (cpu.isExpired()) 
         {
             std::cout << "[DEBUG] Time quantum expired for Process " << next->processId << "\n";
@@ -297,7 +310,18 @@ void OperatingSystem::start()
             cpu.clearExpiredFlag();
             continue;  // Go to next iteration of the loop
         }
-
+        
+        if(cpu.isBlocked())
+        {
+            next->saveState(cpu.getRegisters(), cpu.getSignFlag(), cpu.getZeroFlag());
+            next->state = "Waiting";
+            next->contextSwitches++; 
+            cpu.clearBlocked();
+            next->isBlocked = true;
+            
+            continue;
+        }
+        
         signFlag = cpu.getSignFlag();
         zeroFlag = cpu.getZeroFlag();
         scheduler.switchProcess(cpu.getRegisters(), signFlag, zeroFlag);
@@ -305,6 +329,8 @@ void OperatingSystem::start()
         cpu.setZeroFlag(zeroFlag);
 
         std::cout << "[DEBUG] End of loop iteration.\n";
+
+        
     }
 
     mem.printPagingTable();
@@ -361,15 +387,81 @@ bool OperatingSystem::terminateProcessByPid(uint32_t pid)
         mem.deallocateProcessPages(next->processId);
         next->workingSetPages.clear();
         processList.erase(it);
+
+        unblockProcesses();
+                    
+
         return true;
     }
     return false;
 }
 
+bool OperatingSystem::hasSleepingOrWaitingProcesses() 
+{
+    for (auto* p : processList) 
+    {
+        if ((p->state == "Sleeping" || p->state == "Waiting") && p->processId != 999)
+            return true;
+    }
+    return false;
+}
 
+bool OperatingSystem::hasAllSleepingOrWaitingProcesses()
+{
+    for (auto* p : processList) 
+    {
+        if (p->processId != 999 && p->state != "Sleeping" && p->state != "Waiting")
+        {
+            return false;
+        }
+    }
+    return true;
+}
 
+void OperatingSystem::unblockProcesses()
+{
+    PCB* highestPriorityWaiting = nullptr;
 
+    for (PCB* p : processList)
+    {
+        if (p->state == "Waiting" && p->isBlocked)
+        {
+            if (!highestPriorityWaiting || p->priority > highestPriorityWaiting->priority)
+            {
+                highestPriorityWaiting = p;
+            }
+        }
+    }
 
+    if (highestPriorityWaiting && !highestPriorityWaiting->isLoaded)
+    {
+        
+        highestPriorityWaiting->program->loadIntoMemory(mem, highestPriorityWaiting->registers[11], highestPriorityWaiting->getPid());
+        highestPriorityWaiting->isLoaded = true;
+        highestPriorityWaiting->isBlocked = false;
+        highestPriorityWaiting->state = "Ready";
+        scheduler.addProcess(highestPriorityWaiting);
+        std::cout << "[MEMORY UNBLOCK] Process " << highestPriorityWaiting->processId << " loaded and moved to Ready\n";
+    }
+    else if (highestPriorityWaiting)
+    {
+        highestPriorityWaiting->state = "Ready";
+        highestPriorityWaiting->isBlocked = false;
+        scheduler.addProcess(highestPriorityWaiting);
+        std::cout << "[MEMORY UNBLOCK] Process " << highestPriorityWaiting->processId << " loaded and moved to Ready\n";
+    }
+
+}
+
+void OperatingSystem::cleanupIdleProcessMemory(PCB* process)
+{
+    if (process && process->processId == 999 && !process->workingSetPages.empty()) 
+    {
+        std::cout << "[IDLE CLEANUP] Deallocating memory used by idle process...\n";
+        mem.deallocateProcessPages(process->processId);
+        process->workingSetPages.clear();
+    }
+}
 
 
     

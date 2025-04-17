@@ -47,6 +47,8 @@ private:
     bool preemptNow = false;
 
     bool waitingOnEvent = false;
+    
+    bool blockedOnMemory = false;
 
 
 public:
@@ -100,6 +102,9 @@ public:
     bool isWaitingOnEvent() const { return waitingOnEvent; }
     void clearWaitingOnEvent() { waitingOnEvent = false; }
 
+    bool isBlocked() const { return blockedOnMemory;}
+    void clearBlocked() {blockedOnMemory = false;}
+    
 
 };
 

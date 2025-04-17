@@ -8,6 +8,8 @@
 #include <string>
 #include <fstream> 
 #include <unordered_set>
+#include "ProcessScheduler.h"
+#include "OperatingSystem.h" 
 
 static uint64_t systemClock = 0;
 
@@ -81,6 +83,12 @@ uint32_t memory::getaddress(uint32_t virtualAddr, uint32_t pid)
     {
         if (!hasFreePage()) 
         {
+            if (os && os->hasSleepingOrWaitingProcesses() && !os->hasAllSleepingOrWaitingProcesses() && pid != 999) 
+            {
+                std::cout << "[MEMORY BLOCK] No pages available. Process " << pid << " will wait for memory.\n";
+                throw std::runtime_error("BLOCKED_PAGE_FAULT");
+            }
+
             uint32_t lru = findLRUPage();
             if (lru == UINT32_MAX) 
             {
@@ -89,6 +97,7 @@ uint32_t memory::getaddress(uint32_t virtualAddr, uint32_t pid)
             }
             swapOutPage(lru);
         }
+
 
         uint32_t newPhysicalPage = allocatePage();
         if (newPhysicalPage == UINT32_MAX)
@@ -118,6 +127,12 @@ uint32_t memory::getaddress(uint32_t virtualAddr, uint32_t pid)
 
         if (!hasFreePage()) 
         {
+            if (os && os->hasSleepingOrWaitingProcesses() && !os->hasAllSleepingOrWaitingProcesses()) 
+            {
+                std::cout << "[MEMORY BLOCK] No pages available. Process " << pid << " will wait for memory.\n";
+                throw std::runtime_error("BLOCKED_PAGE_FAULT");
+            }
+
             uint32_t lru = findLRUPage();
             if (lru == UINT32_MAX) 
             {
@@ -126,6 +141,7 @@ uint32_t memory::getaddress(uint32_t virtualAddr, uint32_t pid)
             }
             swapOutPage(lru);
         }
+
 
         uint32_t physicalPage = allocatePage();
         if (physicalPage == UINT32_MAX)
