@@ -33,6 +33,30 @@ memory::memory(uint32_t siz )
         std::cout << "[SHARED INIT] Region " << i << " starts at physical address 0x" 
                 << std::hex << baseAddr << std::dec << "\n";
     }
+
+    // Align to next page boundary
+    uint32_t idleStart = mem.size();
+    if (idleStart % PAGE_SIZE != 0) {
+        idleStart = ((idleStart / PAGE_SIZE) + 1) * PAGE_SIZE;
+        mem.resize(idleStart, 0x00); // pad to alignment
+    }
+
+    // Reserve 1 full page for idle
+    mem.resize(idleStart + PAGE_SIZE, 0x00);
+
+    uint32_t idlePhysPage = idleStart / PAGE_SIZE;
+    paging_table[0xF000] = {
+        .physicalPage = idlePhysPage,
+        .isValid = true,
+        .isDirty = false,
+        .pid = 999,
+        .lastUsedTime = 0
+    };
+
+    std::cout << "[IDLE ALLOCATION] Process 999 fixed at physical 0x" 
+            << std::hex << (idlePhysPage * PAGE_SIZE) << std::dec << "\n";
+
+
 }
 
 memory::~memory()
@@ -81,6 +105,12 @@ uint32_t memory::getaddress(uint32_t virtualAddr, uint32_t pid)
 
     if (!pageExists(start_address)) 
     {
+        if (pid == 999) 
+        {
+            std::cerr << "[IDLE PROTECT] Page 0x" << std::hex << start_address << " missing for idle PID 999 — aborting.\n";
+            exit(1); // this should never happen
+        }
+        
         if (!hasFreePage()) 
         {
             if (os && os->hasSleepingOrWaitingProcesses() && !os->hasAllSleepingOrWaitingProcesses() && pid != 999) 
@@ -122,6 +152,12 @@ uint32_t memory::getaddress(uint32_t virtualAddr, uint32_t pid)
     
     if (!entry.isValid) 
     {
+        if (pid == 999) 
+        {
+            std::cerr << "[IDLE PROTECT] Page 0x" << std::hex << start_address << " missing for idle PID 999 — aborting.\n";
+            exit(1); // this should never happen
+        }
+       
         std::cout << "[PAGE FAULT] Page 0x" << std::hex << start_address << " not in memory.\n";
         pageFaultCount++; 
 
@@ -236,6 +272,13 @@ bool memory::load_file(const std::string &fname )
 
 void memory::mapPage(uint32_t startAddress, uint32_t physicalPage, uint32_t pid) 
 {
+    if (pid == 999 && paging_table.count(startAddress)) 
+    {
+        std::cout << "[MAP] Skipped remapping idle page at 0x" 
+                  << std::hex << startAddress << std::dec << "\n";
+        return;
+    }
+    
     PageEntry entry;
     entry.physicalPage = physicalPage;
     entry.isValid = false; // don't mark valid until loaded
@@ -331,7 +374,7 @@ uint32_t memory::findLRUPage()
 
     for (const auto& [virtAddr, entry] : paging_table) 
     {
-        if (entry.isValid && entry.lastUsedTime < minTime) 
+        if (entry.isValid && entry.lastUsedTime < minTime && entry.pid != 999) 
         {
             minTime = entry.lastUsedTime;
             lruPage = virtAddr;

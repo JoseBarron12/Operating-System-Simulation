@@ -55,7 +55,7 @@ void CPU::executeNextInstruction()
 {
     try 
     {
-    
+
         uint32_t ip = registers[11];
 
         /*
@@ -65,16 +65,17 @@ void CPU::executeNextInstruction()
                     << std::hex << ip << std::endl;
             exit(1);
         }*/
-        
         systemClock++; 
         PCB* current = scheduler.getRunningProcess();
         if (current) 
         {
             current->incrementClockCycle();  
         }
-
+        else 
+        {
+            std::cerr << "[CPU ERROR] No running process found! Cannot increment clock cycle.\n";
+        }
         uint8_t opcodeByte = mem.get8(ip, current->getPid());
-
 
         if (opcodeByte == 0 || opcodeByte >= 0x34) 
         {

@@ -1,3 +1,3 @@
 movi r1 $20
 printr r1
-jmpa $0
+jmpa $0xF000

@@ -21,6 +21,7 @@ public:
     void loadIntoMemory(memory& mem,uint32_t start, uint32_t pid);
     Opcode convertString(const std::string instruction);
     uint32_t getCodeSize() const;
+    std::vector<uint32_t> getInstructions() const { return instructions; }
 };
 
 #endif

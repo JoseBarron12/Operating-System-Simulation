@@ -6,7 +6,7 @@ OperatingSystem::OperatingSystem(uint32_t memorySize, const std::string& program
     : mem(memorySize), cpu(mem, scheduler), programFile(programFile) {
     currentMemAddress = 0;
         
-    loadProcess(999, programFile, 4, 512, 1, 512); // load idle process with lowest priority
+    loadIdleProcess(programFile);
 }
 
 
@@ -199,7 +199,6 @@ void OperatingSystem::start()
         std::cout << "[DEBUGYUH] NUMBER OF CYCLES: " << next->clockCycles 
                   << " for process: " << next->processId << std::endl;
        
-        cleanupIdleProcessMemory(next);
         
         if (cpu.isPreempting())
         {
@@ -453,15 +452,43 @@ void OperatingSystem::unblockProcesses()
 
 }
 
-void OperatingSystem::cleanupIdleProcessMemory(PCB* process)
+void OperatingSystem::loadIdleProcess(const std::string& file)
 {
-    if (process && process->processId == 999 && !process->workingSetPages.empty()) 
+    const uint32_t IDLE_VADDR = 0xF000;
+
+    Program* idle = new Program(file);
+    idle->loadProgram(file);
+
+    // Create PCB for idle process
+    PCB* idlePCB = new PCB(999, idle->getCodeSize(), 0, 0, 1, idle, 0);
+    idlePCB->registers[11] = IDLE_VADDR;  // Set instruction pointer to fixed virtual address
+    idlePCB->isLoaded = true;
+    scheduler.addProcess(idlePCB);
+    processList.push_back(idlePCB);
+
+
+    // Load instructions into reserved memory using getaddress
+    std::vector<uint32_t> code = idle->getInstructions();
+    uint32_t addr = IDLE_VADDR;
+
+    std::cout << "[IDLE] Writing " << code.size() << " instruction values\n";
+    std::cout << "[IDLE WRITE] Writing to VA: 0x" << std::hex << addr << std::dec << "\n";
+
+    for (size_t i = 0; i < code.size(); i += 3) 
     {
-        std::cout << "[IDLE CLEANUP] Deallocating memory used by idle process...\n";
-        mem.deallocateProcessPages(process->processId);
-        process->workingSetPages.clear();
+        uint32_t physical_addr = mem.getaddress(addr, 999); 
+        
+        std::cout << "  → physical address: 0x" << std::hex << physical_addr << std::dec << "\n";
+
+        mem.set8(physical_addr, code[i]);
+        mem.set32(physical_addr + 1, code[i+1]); 
+        mem.set32(physical_addr + 5, code[i+2]); 
+
+        addr += 9; 
     }
 }
+
+
 
 
     
