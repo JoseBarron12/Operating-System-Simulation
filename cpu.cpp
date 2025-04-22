@@ -105,39 +105,38 @@ void CPU::executeNextInstruction()
                 registers[arg1] += registers[arg2];
                 break;
 
-            case Opcode::Pushr: {
-                    registers[13] -= 4;  // Decrement SP
-                
-                    // Stack overflow check
-                    if (registers[13] < current->heapEnd) {
-                        std::cerr << "[STACK OVERFLOW] Process " << current->processId
+            case Opcode::Pushr:
+            {
+                // Stack overflow check
+                if (registers[13] < current->heapEnd) 
+                {
+                    std::cerr << "[STACK OVERFLOW] Process " << current->processId
                                   << " SP=0x" << std::hex << registers[13]
                                   << " went below heapEnd=0x" << current->heapEnd << std::dec << "\n";
-                        terminated = true; 
-                        return;
-                    }
-                
-                    mem.set32(registers[13], registers[arg1]);
-                    break;
+                    terminated = true; 
+                    return;
                 }
+                registers[13] -= 4;  // Decrement SP
+                mem.set32(registers[13], registers[arg1]);
+                break;
+            }
                 
-            case Opcode::Pushi: {
-                    registers[13] -= 4;
-                
-                    // Stack overflow check
-                    if (registers[13] < current->heapEnd) {
-                        std::cerr << "[STACK OVERFLOW] Process " << current->processId
-                                  << " SP=0x" << std::hex << registers[13]
-                                  << " went below heapEnd=0x" << current->heapEnd << std::dec << "\n";
-                        terminated = true;  
-                        return;
-                    }
-                
-                    mem.set32(registers[13], arg1);
-                    break;
+            case Opcode::Pushi: 
+            {
+                // Stack overflow check
+                if (registers[13] < current->heapEnd) 
+                {
+                    std::cerr << "[STACK OVERFLOW] Process " << current->processId
+                                << " SP=0x" << std::hex << registers[13]
+                                << " went below heapEnd=0x" << current->heapEnd << std::dec << "\n";
+                    terminated = true;  
+                    return;
                 }
+                registers[13] -= 4;
+                mem.set32(registers[13], arg1);
+                break;
+            }
                 
-
             case Opcode::Movi:
                 registers[arg1] = arg2;
                 break;
@@ -161,9 +160,14 @@ void CPU::executeNextInstruction()
                 if (!mem.check_illegal(arg1) && !mem.check_illegal(arg2)) 
                 {
                     mem.set32(mem.get32(arg1, current->getPid()), mem.get32(arg2, current->getPid())); 
+                    
+                }
+                else
+                {
                     std::cerr << "WARNING: Attempted MOVMM with invalid addresses: " 
                             << std::hex << arg1 << " or " << arg2 << std::endl;
                 }
+                
                 break;
 
             case Opcode::Printr:
@@ -313,14 +317,30 @@ void CPU::executeNextInstruction()
                 terminated = true;  // Add a flag in CPU
                 return;
             
-            case Opcode::Popr:
-                registers[13] += 4;
+            case Opcode::Popr:   
+                // Stack overflow check
+                if (registers[13] < current->heapEnd) {
+                    std::cerr << "[STACK OVERFLOW] Process " << current->processId
+                            << " SP=0x" << std::hex << registers[13]
+                            << " went below heapEnd=0x" << current->heapEnd << std::dec << "\n";
+                    terminated = true; 
+                    return;
+                }
                 registers[arg1] = mem.get32(registers[13], current->getPid());
+                registers[13] -= 4;  // Decrement SP
                 break;
 
             case Opcode::Popm:
-                registers[13] += 4;
+                // Stack overflow check
+                if (registers[13] < current->heapEnd) {
+                    std::cerr << "[STACK OVERFLOW] Process " << current->processId
+                            << " SP=0x" << std::hex << registers[13]
+                            << " went below heapEnd=0x" << current->heapEnd << std::dec << "\n";
+                    terminated = true; 
+                    return;
+                }
                 mem.set32(registers[arg1], mem.get32(registers[13], current->getPid()));
+                registers[13] -= 4;  // Decrement SP
                 break;
 
             case Opcode::Sleep:
@@ -343,8 +363,12 @@ void CPU::executeNextInstruction()
                 break;
 
             case Opcode::SetPriority:
+                if (registers[arg1] < 2 || registers[arg1] > 32) break;
+                current->priority = registers[arg1];
+                break;
             case Opcode::SetPriorityI:
-                std::cerr << "Warning: SetPriority not implemented in CPU." << std::endl;
+                if (arg1 < 2 || arg1 > 32) break;
+                current->priority = arg1;
                 break;
             
             case Opcode::MapSharedMem:

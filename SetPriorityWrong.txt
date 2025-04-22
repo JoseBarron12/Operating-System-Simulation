@@ -1,0 +1,2 @@
+SetPriorityI $40
+exit

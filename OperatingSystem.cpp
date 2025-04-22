@@ -233,7 +233,7 @@ void OperatingSystem::start()
             next->state = "Terminated";
             cpu.clearTerminatedFlag();
 
-            std::cout << "\n[PROCESS TERMINATED] PID: " << next->processId << "\n";
+            std::cout << "\n[PROCESS TERMINATED] PID: " << next->processId << " | Priority: " << next->priority << "\n";
             std::cout << "  → Clock Cycles: " << next->clockCycles << "\n";
             std::cout << "  → Context Switches: " << next->contextSwitches + 1 << "\n";  // +1 since it's ending
             int processPageFaults = 0;
