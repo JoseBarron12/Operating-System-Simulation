@@ -1,3 +1,3 @@
-movi r1, 5
-sleep r1
-exit
+movi r1, $5          ; Load the value 5 into register r1
+sleep r1            ; Sleep the process for 5 cycles
+exit                ; Terminate the process

@@ -22,10 +22,35 @@ void Program::loadProgram(const std::string& filename)
     }
     std::string instruction;
 
-    while(std::getline(file,instruction))
+    while (std::getline(file, instruction))
     {
+        size_t semicolon = instruction.find(';');
+        size_t hash = instruction.find('#');
+        
+        size_t comment = std::min(semicolon, hash);
+        
+        if (semicolon == std::string::npos) 
+        {
+            comment = hash;
+        }
+        else if (hash != std::string::npos) 
+        {
+            comment = std::min(semicolon, hash);
+        }
+        
+
+        if (comment != std::string::npos)
+        {
+            instruction = instruction.substr(0, comment); // Remove comment part
+        }
+            
+        instruction.erase(0, instruction.find_first_not_of(" \t\r\n")); 
+        instruction.erase(instruction.find_last_not_of(" \t\r\n") + 1); 
+
         convertInstruction(instruction);
+            
     }
+
 }
 
 void Program::convertInstruction(const std::string& line)
@@ -106,7 +131,7 @@ void Program::loadIntoMemory(memory& mem, uint32_t start, uint32_t pid)
 }
 
 
-Opcode Program::convertString(const std::string instruction)
+Opcode Program::convertString(std::string instruction)
 {
     static const std::unordered_map<std::string, Opcode> opcodeMap = 
     {
@@ -119,12 +144,17 @@ Opcode Program::convertString(const std::string instruction)
         {"jgta", Jgta}, {"je", Je}, {"jei", Jei}, {"jea", Jea},
         {"call", Call}, {"callm", Callm}, {"ret", Ret}, {"exit", Exit},
         {"popr", Popr}, {"popm", Popm}, {"sleep", Sleep}, {"input", Input},
-        {"inputc", Inputc}, {"setPriority", SetPriority}, {"setPriorityI", SetPriorityI},
-        {"MapSharedMem", MapSharedMem}, {"AcquireLock", AcquireLock}, {"AcquireLockI", AcquireLockI},
-        {"ReleaseLock", ReleaseLock}, {"ReleaseLockI", ReleaseLockI}, {"SignalEvent", SignalEvent},
-        {"SignalEventI", SignalEventI}, {"WaitEvent", WaitEvent}, {"WaitEventI", WaitEventI},
-        {"Alloc", Alloc}, {"FreeMemory", FreeMemory}, {"TerminateProcess", TerminateProcess}
+        {"inputc", Inputc}, {"setpriority", SetPriority}, {"setpriorityi", SetPriorityI},
+        {"mapsharedmem", MapSharedMem}, {"acquirelock", AcquireLock}, {"acquirelocki", AcquireLockI},
+        {"releaselock", ReleaseLock}, {"releaselocki", ReleaseLockI}, {"signalevent", SignalEvent},
+        {"signaleventi", SignalEventI}, {"waitevent", WaitEvent}, {"waiteventi", WaitEventI},
+        {"alloc", Alloc}, {"freememory", FreeMemory}, {"terminateprocess", TerminateProcess}
     };
+
+    for (auto& c : instruction)
+    {
+        c = std::tolower(static_cast<unsigned char>(c));
+    }
 
     auto it = opcodeMap.find(instruction);
     if (it != opcodeMap.end()) 

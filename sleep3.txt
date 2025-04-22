@@ -1,4 +1,4 @@
-movi r1, 100
-Alloc r1, r2    
-printr r2       
-exit
+movi r1, $100   ; Load the value 100 into register r1 (for allocation size)
+Alloc r1, r2    ; Allocate 100 bytes of heap memory and store the address in r2
+printr r2       ; Print the address stored in r2
+exit            ; Terminate the process
