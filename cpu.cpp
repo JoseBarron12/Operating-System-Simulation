@@ -94,19 +94,35 @@ void CPU::executeNextInstruction()
         switch (static_cast<Opcode>(opcodeByte))
         {
             case Opcode::Incr:
+                if (arg1 >= 15) {
+                    std::cerr << "[ERROR] Invalid register index in Incr: " << arg1 << "\n";
+                    terminated = true;
+                    return;
+                }
                 registers[arg1]++;
                 break;
 
             case Opcode::Addi:
+                if (arg1 >= 15) {
+                    std::cerr << "[ERROR] Invalid register index in Addi: " << arg1 << "\n";
+                    terminated = true;
+                    return;
+                }
                 registers[arg1] += arg2;
                 break;
 
             case Opcode::Addr:
+                if (arg1 >= 15) {
+                    std::cerr << "[ERROR] Invalid register index in Addr: " << arg1 << "\n";
+                    terminated = true;
+                    return;
+                }
                 registers[arg1] += registers[arg2];
                 break;
 
             case Opcode::Pushr:
             {
+                registers[13] -= 4;  // Decrement SP
                 // Stack overflow check
                 if (registers[13] < current->heapEnd) 
                 {
@@ -116,13 +132,13 @@ void CPU::executeNextInstruction()
                     terminated = true; 
                     return;
                 }
-                registers[13] -= 4;  // Decrement SP
                 mem.set32(registers[13], registers[arg1]);
                 break;
             }
                 
             case Opcode::Pushi: 
             {
+                registers[13] -= 4;
                 // Stack overflow check
                 if (registers[13] < current->heapEnd) 
                 {
@@ -132,30 +148,63 @@ void CPU::executeNextInstruction()
                     terminated = true;  
                     return;
                 }
-                registers[13] -= 4;
                 mem.set32(registers[13], arg1);
                 break;
             }
                 
             case Opcode::Movi:
+                if (arg1 >= 15) 
+                {
+                    std::cerr << "[ERROR] Invalid register index in Movi: " << arg1 << "\n";
+                    terminated = true;
+                    return;
+                }
                 registers[arg1] = arg2;
                 break;
 
             case Opcode::Movr:
+                if (arg1 >= 15 || arg2 >= 15) {
+                    std::cerr << "[ERROR] Invalid register index in Movr: " << arg1 << " or " << arg2 << "\n";
+                    terminated = true;
+                    return;
+                }
                 registers[arg1] = registers[arg2];
                 break;
 
             case Opcode::Movmr:
-                registers[arg1] = mem.get32(registers[arg2], current->getPid());
-                break;
-
-            case Opcode::Movrm:
-                {
-                    uint32_t physical_addr = mem.getaddress(registers[arg1], current->getPid());
-                    mem.set32(physical_addr, registers[arg2]);
+            {
+                if (arg1 >= 15 || arg2 >= 15) {
+                    std::cerr << "[ERROR] Invalid register index in Movmr: " << arg1 << " or " << arg2 << "\n";
+                    terminated = true;
+                    return;
                 }
+                
+                uint32_t vaddr = registers[arg2];
+                uint32_t value = mem.get32(vaddr, current->getPid());
+                registers[arg1] = value;
                 break;
+            }
+                
+            case Opcode::Movrm:
+            {
+                if (arg1 >= 15 || arg2 >= 15) {
+                    std::cerr << "[ERROR] Invalid register index in Movrm: " << arg1 << " or " << arg2 << "\n";
+                    terminated = true;
+                    return;
+                }
+                
+                uint32_t vaddr = registers[arg1];
+                uint32_t value = registers[arg2];
+                uint32_t physical_addr = mem.getaddress(registers[arg1], current->getPid());
 
+                std::cout << "[DEBUG MOVRM] Storing value " << value 
+                          << " from r" << arg2 << " into VA 0x" << std::hex << vaddr 
+                          << " (PA 0x" << physical_addr << ")" << std::dec << "\n";
+
+                mem.set32(physical_addr, registers[arg2]);
+                break;
+            }
+                
             case Opcode::Movmm:
                 if (!mem.check_illegal(arg1) && !mem.check_illegal(arg2)) 
                 {
@@ -166,6 +215,9 @@ void CPU::executeNextInstruction()
                 {
                     std::cerr << "WARNING: Attempted MOVMM with invalid addresses: " 
                             << std::hex << arg1 << " or " << arg2 << std::endl;
+                    terminated = true;
+                    return;
+
                 }
                 
                 break;
@@ -178,6 +230,8 @@ void CPU::executeNextInstruction()
                 else 
                 {
                     std::cerr << "WARNING: Invalid register accessed: " << arg1 << std::endl;
+                    terminated = true;
+                    return;
                 }
                 break;
             
@@ -190,15 +244,29 @@ void CPU::executeNextInstruction()
                 else 
                 {
                     std::cerr << "WARNING: Attempted to print invalid memory at: " << registers[arg1] << std::endl;
+                    terminated = true;
+                    return;
                 }
                 break;
             
             case Opcode::Printcr:
-                std::cout << static_cast<char>(registers[arg1]) << std::flush;  
+                if (arg1 >= 15) 
+                {
+                    std::cerr << "[ERROR] Invalid register index in Printcr: " << arg1 << "\n";
+                    terminated = true;
+                    return;
+                }
+                std::cout << static_cast<char>(registers[arg1]) << std::flush;
                 break;
 
             case Opcode::Printcm:
-                std::cout << static_cast<char>(mem.get8(registers[arg1], current->getPid())) << std::flush;  
+                if (arg1 >= 15) 
+                {
+                    std::cerr << "[ERROR] Invalid register index in Printcm: " << arg1 << "\n";
+                    terminated = true;
+                    return;
+                }
+                std::cout << static_cast<char>(mem.get8(registers[arg1], current->getPid())) << std::flush;
                 break;
 
             case Opcode::Jmp:
@@ -293,6 +361,15 @@ void CPU::executeNextInstruction()
 
             case Opcode::Call:
                 registers[13] -= 4;
+                // Stack overflow check
+                if (registers[13] < current->heapEnd) 
+                {
+                    std::cerr << "[STACK OVERFLOW] Process " << current->processId
+                            << " SP=0x" << std::hex << registers[13]
+                            << " went below heapEnd=0x" << current->heapEnd << std::dec << "\n";
+                    terminated = true; 
+                    return;
+                }
                 mem.set32(registers[13], registers[11]);
                 registers[11] += registers[arg1]; 
                 shouldIncrementIP = false;
@@ -300,13 +377,31 @@ void CPU::executeNextInstruction()
 
             case Opcode::Callm:
                 registers[13] -= 4;
+                // Stack overflow check
+                if (registers[13] < current->heapEnd) 
+                {
+                    std::cerr << "[STACK OVERFLOW] Process " << current->processId
+                            << " SP=0x" << std::hex << registers[13]
+                            << " went below heapEnd=0x" << current->heapEnd << std::dec << "\n";
+                    terminated = true; 
+                    return;
+                }
                 mem.set32(registers[13], registers[11]);
                 registers[11] = registers[arg1];  
                 shouldIncrementIP = false;
                 break;
 
             case Opcode::Ret:
-                registers[13] += 4;  
+                registers[13] += 4; 
+                // Stack overflow check
+                if (registers[13] < current->heapEnd) 
+                {
+                    std::cerr << "[STACK OVERFLOW] Process " << current->processId
+                            << " SP=0x" << std::hex << registers[13]
+                            << " went below heapEnd=0x" << current->heapEnd << std::dec << "\n";
+                    terminated = true; 
+                    return;
+                }
                 registers[11] = mem.get32(registers[13], current->getPid());
                 shouldIncrementIP = false;
                 break;
@@ -318,8 +413,10 @@ void CPU::executeNextInstruction()
                 return;
             
             case Opcode::Popr:   
+                registers[13] += 4;
                 // Stack overflow check
-                if (registers[13] < current->heapEnd) {
+                if (registers[13] < current->heapEnd) 
+                {
                     std::cerr << "[STACK OVERFLOW] Process " << current->processId
                             << " SP=0x" << std::hex << registers[13]
                             << " went below heapEnd=0x" << current->heapEnd << std::dec << "\n";
@@ -327,10 +424,10 @@ void CPU::executeNextInstruction()
                     return;
                 }
                 registers[arg1] = mem.get32(registers[13], current->getPid());
-                registers[13] -= 4;  // Decrement SP
                 break;
 
             case Opcode::Popm:
+                registers[13] += 4;
                 // Stack overflow check
                 if (registers[13] < current->heapEnd) {
                     std::cerr << "[STACK OVERFLOW] Process " << current->processId
@@ -340,7 +437,6 @@ void CPU::executeNextInstruction()
                     return;
                 }
                 mem.set32(registers[arg1], mem.get32(registers[13], current->getPid()));
-                registers[13] -= 4;  // Decrement SP
                 break;
 
             case Opcode::Sleep:
@@ -353,10 +449,20 @@ void CPU::executeNextInstruction()
                 return;
 
             case Opcode::Input:
+                if (arg1 >= 15) {
+                    std::cerr << "[ERROR] Invalid register index in Input: " << arg1 << "\n";
+                    terminated = true;
+                    return;
+                }
                 std::cin >> registers[arg1];
                 break;
 
             case Opcode::Inputc:
+                if (arg1 >= 15) {
+                    std::cerr << "[ERROR] Invalid register index in Inputc: " << arg1 << "\n";
+                    terminated = true;
+                    return;
+                }
                 char c;
                 std::cin >> c;
                 registers[arg1] = static_cast<uint32_t>(c);
@@ -389,7 +495,7 @@ void CPU::executeNextInstruction()
                         break;
                     }
                 
-                    uint32_t virtualSharedAddr = 0xF000 + sharedRegion * PAGE_SIZE;
+                    uint32_t virtualSharedAddr = 0xFF00 + sharedRegion * PAGE_SIZE;
                     uint32_t physAddr = mem.sharedMemoryTable[sharedRegion].physicalPage;
                 
                     mem.mapPage(virtualSharedAddr, physAddr / PAGE_SIZE, current->getPid());

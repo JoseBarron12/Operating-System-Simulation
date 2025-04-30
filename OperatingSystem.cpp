@@ -172,10 +172,15 @@ void OperatingSystem::start()
             } 
             catch (const std::exception& e) // always means a blocked request
             {
-                next->state = "Waiting";
-                next->isBlocked = true;
-                std::cout << "[MEMORY BLOCK] Process " << next->processId << " is now Waiting for Memory\n";
-                continue;
+                
+                if (std::string(e.what()) == "BLOCKED_PAGE_FAULT")
+                {
+                    next->state = "Waiting";
+                    next->isBlocked = true;
+                    std::cout << "[MEMORY BLOCK] Process " << next->processId << " is now Waiting for Memory\n";
+                    continue;
+                }
+                  
             }
              
         }
