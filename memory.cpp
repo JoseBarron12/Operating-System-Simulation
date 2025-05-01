@@ -438,9 +438,10 @@ void memory::deallocateProcessPages(uint32_t pid)
         {
             uint32_t physPage = it->second.physicalPage;
 
-            if (it->second.isValid)
+            // Don't double-free shared or idle pages
+            if (physPage != UINT32_MAX && freePages.count(physPage) == 0)
             {
-                freePages.insert(physPage); // Return physical page to pool
+                freePages.insert(physPage);
             }
 
             it = paging_table.erase(it); // Remove the page mapping
@@ -451,6 +452,7 @@ void memory::deallocateProcessPages(uint32_t pid)
         }
     }
 }
+
 
 void memory::debugPrintFreePages() const
 {

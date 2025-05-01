@@ -476,14 +476,15 @@ void OperatingSystem::loadIdleProcess(const std::string& file)
     std::vector<uint32_t> code = idle->getInstructions();
     uint32_t addr = IDLE_VADDR;
 
-    std::cout << "[IDLE] Writing " << code.size() << " instruction values\n";
-    std::cout << "[IDLE WRITE] Writing to VA: 0x" << std::hex << addr << std::dec << "\n";
+    
+    //std::cout << "[IDLE] Writing " << code.size() << " instruction values\n";
+    //std::cout << "[IDLE WRITE] Writing to VA: 0x" << std::hex << addr << std::dec << "\n";
 
     for (size_t i = 0; i < code.size(); i += 3) 
     {
         uint32_t physical_addr = mem.getaddress(addr, 999); 
         
-        std::cout << "  → physical address: 0x" << std::hex << physical_addr << std::dec << "\n";
+        //std::cout << "  → physical address: 0x" << std::hex << physical_addr << std::dec << "\n";
 
         mem.set8(physical_addr, code[i]);
         mem.set32(physical_addr + 1, code[i+1]); 
@@ -491,6 +492,7 @@ void OperatingSystem::loadIdleProcess(const std::string& file)
 
         addr += 9; 
     }
+    
 }
 
 
