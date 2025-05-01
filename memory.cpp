@@ -305,7 +305,7 @@ uint32_t memory::allocatePage()
         return UINT32_MAX;
     }
 
-    debugPrintFreePages();
+    //debugPrintFreePages();
     
     uint32_t page = *freePages.begin();
     freePages.erase(page);
@@ -454,7 +454,7 @@ void memory::deallocateProcessPages(uint32_t pid)
 
 void memory::debugPrintFreePages() const
 {
-    std::cout << "[DEBUG] Free Physical Pages After Deallocation: ";
+    std::cout << "[Memory Deallocation] Free Physical Pages After Deallocation: ";
     for (uint32_t page : freePages)
     {
         std::cout << page << " ";

@@ -49,7 +49,7 @@ void ProcessScheduler::switchProcess(uint32_t* cpuRegisters, bool& signFlag, boo
 
     runningProcess = getNextProcess();
     runningProcess->restoreState(cpuRegisters, signFlag, zeroFlag);
-    std::cout << "[DEBUG] Restored IP: " << std::hex << cpuRegisters[11] << std::endl;
+    //std::cout << "[DEBUG] Restored IP: " << std::hex << cpuRegisters[11] << std::endl;
     runningProcess->state = "Running";
 
     std::cout << "[SCHEDULER] Switching to Process " << runningProcess->processId 

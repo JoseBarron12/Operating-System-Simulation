@@ -34,7 +34,7 @@ void OperatingSystem::loadProcess(uint32_t id, const std::string& programFile, u
 
     std::cout << "[MEMORY ALLOCATION] Process " << id << " assigned memory at "
               << programStartAddress << " - " << (programStartAddress + alignedSize) << std::endl;
-    std::cout << "[DEBUG] Set PCB IP to: " << std::hex << newProcess->registers[11] << std::endl;
+    //std::cout << "[DEBUG] Set PCB IP to: " << std::hex << newProcess->registers[11] << std::endl;
 
     std::cout << std::hex << "[MEMORY ALLOCATION] Process " << id 
           << " assigned memory at 0x" << programStartAddress 
@@ -113,8 +113,8 @@ void OperatingSystem::start()
             break;
         }
         
-        std::cout << "\n[DEBUG] -------- Start of loop --------\n";
-        std::cout << "[DEBUG] Process list size: " << processList.size() << std::endl;
+        //std::cout << "\n[DEBUG] -------- Start of loop --------\n";
+        //std::cout << "[DEBUG] Process list size: " << processList.size() << std::endl;
 
 
         PCB* next = scheduler.getNextProcess();
@@ -186,7 +186,7 @@ void OperatingSystem::start()
         }
 
 
-        std::cout << "[DEBUG] Got next process: " << next->processId << std::endl;
+        //std::cout << "[DEBUG] Got next process: " << next->processId << std::endl;
 
         bool signFlag = cpu.getSignFlag();
         bool zeroFlag = cpu.getZeroFlag();
@@ -196,18 +196,18 @@ void OperatingSystem::start()
         cpu.setRegister(12, next->processId);
 
 
-        std::cout << "[DEBUG] CPU::run() start\n";
-        std::cout << "[DEBUG] CPU IP before run(): " << std::hex << cpu.getInstructionPointer() << std::endl;
+        //std::cout << "[DEBUG] CPU::run() start\n";
+        //std::cout << "[DEBUG] CPU IP before run(): " << std::hex << cpu.getInstructionPointer() << std::endl;
 
         cpu.run();
 
-        std::cout << "[DEBUGYUH] NUMBER OF CYCLES: " << next->clockCycles 
-                  << " for process: " << next->processId << std::endl;
+        //std::cout << "[DEBUGYUH] NUMBER OF CYCLES: " << next->clockCycles 
+        //          << " for process: " << next->processId << std::endl;
        
         
         if (cpu.isPreempting())
         {
-            std::cout << "[DEBUG] CPU preempted. Re-scheduling immediately.\n";
+            //std::cout << "[DEBUG] CPU preempted. Re-scheduling immediately.\n";
             cpu.clearPreemption();
 
             next->saveState(cpu.getRegisters(), cpu.getSignFlag(), cpu.getZeroFlag());
@@ -219,12 +219,12 @@ void OperatingSystem::start()
         
         if (cpu.isSleepRequested()) 
         {
-            std::cout << "[DEBUG] CPU sleeping, exit run()\n";
+            //std::cout << "[DEBUG] CPU sleeping, exit run()\n";
             next->saveState(cpu.getRegisters(), cpu.getSignFlag(), cpu.getZeroFlag());
             next->sleepCounter = cpu.getSleepDuration();
-            std::cout << "[DEBUG] process is: " << next->state << std::endl;
+            //std::cout << "[DEBUG] process is: " << next->state << std::endl;
             next->state = "Sleeping";
-            std::cout << "[DEBUG] process is: " << next->state << std::endl;
+            //std::cout << "[DEBUG] process is: " << next->state << std::endl;
             
             next->contextSwitches++; 
             cpu.clearSleepRequest();
@@ -283,10 +283,10 @@ void OperatingSystem::start()
 
         if (cpu.isWaitingOnLock())
         {
-            std::cout << "[DEBUG] CPU waiting on lock, exit run()\n";
+            //std::cout << "[DEBUG] CPU waiting on lock, exit run()\n";
             next->saveState(cpu.getRegisters(), cpu.getSignFlag(), cpu.getZeroFlag());
             next->state = "Waiting";
-            std::cout << "[DEBUG] Process " << next->processId << " is now Waiting for Lock\n";
+            //std::cout << "[DEBUG] Process " << next->processId << " is now Waiting for Lock\n";
             next->contextSwitches++; 
             cpu.clearWaitingOnLock();
             
@@ -297,7 +297,7 @@ void OperatingSystem::start()
         {
             next->saveState(cpu.getRegisters(), cpu.getSignFlag(), cpu.getZeroFlag());
             next->state = "Waiting";
-            std::cout << "[DEBUG] Process " << next->processId << " is now Waiting for Event\n";
+            //std::cout << "[DEBUG] Process " << next->processId << " is now Waiting for Event\n";
             next->contextSwitches++; 
             cpu.clearWaitingOnEvent();
             
@@ -306,7 +306,7 @@ void OperatingSystem::start()
         
         if (cpu.isExpired()) 
         {
-            std::cout << "[DEBUG] Time quantum expired for Process " << next->processId << "\n";
+            //std::cout << "[DEBUG] Time quantum expired for Process " << next->processId << "\n";
             next->saveState(cpu.getRegisters(), cpu.getSignFlag(), cpu.getZeroFlag());
             next->state = "Ready";
             scheduler.addProcess(next);  // Put back into ready queue
@@ -332,7 +332,7 @@ void OperatingSystem::start()
         cpu.setSignFlag(signFlag);
         cpu.setZeroFlag(zeroFlag);
 
-        std::cout << "[DEBUG] End of loop iteration.\n";
+        //std::cout << "[DEBUG] End of loop iteration.\n";
 
         
     }

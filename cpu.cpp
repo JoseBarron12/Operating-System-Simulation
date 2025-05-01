@@ -197,9 +197,9 @@ void CPU::executeNextInstruction()
                 uint32_t value = registers[arg2];
                 uint32_t physical_addr = mem.getaddress(registers[arg1], current->getPid());
 
-                std::cout << "[DEBUG MOVRM] Storing value " << value 
-                          << " from r" << arg2 << " into VA 0x" << std::hex << vaddr 
-                          << " (PA 0x" << physical_addr << ")" << std::dec << "\n";
+                //std::cout << "[DEBUG MOVRM] Storing value " << value 
+                //          << " from r" << arg2 << " into VA 0x" << std::hex << vaddr 
+                //          << " (PA 0x" << physical_addr << ")" << std::dec << "\n";
 
                 mem.set32(physical_addr, registers[arg2]);
                 break;
@@ -441,7 +441,7 @@ void CPU::executeNextInstruction()
 
             case Opcode::Sleep:
                 
-                std::cout << "[DEBUG] CPU requested sleep for " << registers[arg1] << " cycles.\n";
+                //std::cout << "[DEBUG] CPU requested sleep for " << registers[arg1] << " cycles.\n";
                 sleepRequested = true;
                 sleepDuration = registers[arg1];
 
@@ -831,7 +831,7 @@ void CPU::executeNextInstruction()
 void CPU::run() 
 {
     
-    std::cout << "[DEBUG] IP: " << std::hex << registers[11] << std::endl;
+    //std::cout << "[DEBUG] IP: " << std::hex << registers[11] << std::endl;
     
     quantumExpired = false;
 
@@ -843,13 +843,13 @@ void CPU::run()
 
         if (preemptNow) 
         {
-            std::cout << "[DEBUG] CPU preempted by higher-priority process, exit run()\n";
+            //std::cout << "[DEBUG] CPU preempted by higher-priority process, exit run()\n";
             return;
         }
 
         if (terminated) 
         {
-            std::cout << "[DEBUG] CPU termination flag set, exit run()\n";
+            //std::cout << "[DEBUG] CPU termination flag set, exit run()\n";
             return;
         }
         
@@ -860,17 +860,17 @@ void CPU::run()
         
         if (quantumExpired)
         {
-            std::cout << "[DEBUG] CPU expiration flag set, exit run()\n";
+            //std::cout << "[DEBUG] CPU expiration flag set, exit run()\n";
             return;
         }
         if (waitingOnLock) 
         {
-            std::cout << "[DEBUG] CPU waiting on lock, exit run()\n";
+            //std::cout << "[DEBUG] CPU waiting on lock, exit run()\n";
             return;
         }
         if (waitingOnEvent) 
         {
-            std::cout << "[DEBUG] CPU waiting on event, exit run()\n";
+            //std::cout << "[DEBUG] CPU waiting on event, exit run()\n";
             return;
         }
         if (blockedOnMemory)
