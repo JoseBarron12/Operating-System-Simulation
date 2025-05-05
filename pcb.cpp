@@ -34,6 +34,7 @@ PCB::PCB(uint32_t id, uint32_t codeSize, uint32_t stackSize, uint32_t dataSize, 
     zeroFlag = false;
     timeQuantum = 10;
     clockCycles = 0;
+    totalClockCycles = 0;
     sleepCounter = 0;
     contextSwitches = 0;
     originalPriority = priority;
@@ -43,13 +44,14 @@ PCB::PCB(uint32_t id, uint32_t codeSize, uint32_t stackSize, uint32_t dataSize, 
     registers[13] = codeSize + dataSize + heapSize + stackSize - 1;
 
     // Debugging memory layout printout
+    /*
     std::cout << "[MEMORY MAP] Process " << processId << " layout:\n";
     std::cout << "  Code:   0x000 - 0x" << std::hex << codeSize - 1 << "\n";
     std::cout << "  Data:   0x" << codeSize << " - 0x" << codeSize + dataSize - 1 << "\n";
     std::cout << "  Heap:   0x" << heapStart << " - 0x" << heapEnd - 1 << "\n";
     std::cout << "  Stack:  0x" << heapEnd << " - 0x" << heapEnd + stackSize - 1 << "\n";
     std::cout << "  SP(r13): 0x" << registers[13] << "\n" << std::dec;
-        
+    */    
 }
 
 /**

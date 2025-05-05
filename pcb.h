@@ -48,7 +48,8 @@ public:
     uint32_t priority;          // Current process priority
     uint32_t originalPriority;  // Initial priority
     uint32_t timeQuantum;       // Time slice allocated for the process
-    uint32_t clockCycles;       // Total number of executed cycles
+    uint32_t clockCycles;       // Total number of executed cycles for cpu
+    uint32_t totalClockCycles;  // Total number of executed cycles
     uint32_t sleepCounter;      // Remaining sleep time 
     uint32_t contextSwitches;   // Number of times this process was switched in or out
     

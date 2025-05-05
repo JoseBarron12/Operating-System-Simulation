@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
         std::string filename = argv[i + 2];
         int priority = 32 - i;
 
-        os.loadProcess(i + 1, filename, 4, 512, priority, 512);
+        os.loadProcess(i + 1, filename, 5, 512, priority, 512);
     }
     os.cpu.setOSPointer(&os); 
     os.mem.setOSPointer(&os);

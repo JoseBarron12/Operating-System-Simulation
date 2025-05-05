@@ -87,6 +87,7 @@ void CPU::executeNextInstruction()
     try 
     {
 
+
         uint32_t ip = registers[11]; // Instruction pointer
         /*
         if (ip >= mem.get_size()) 
@@ -179,7 +180,7 @@ void CPU::executeNextInstruction()
             {
                 registers[13] -= 4;
                 // Stack overflow check
-                if (registers[13] < current->heapEnd) 
+                if (registers[13] < current->heapEnd ) 
                 {
                     std::cerr << "[STACK OVERFLOW] Process " << current->processId
                                 << " SP=0x" << std::hex << registers[13]
@@ -295,7 +296,7 @@ void CPU::executeNextInstruction()
                     terminated = true;
                     return;
                 }
-                std::cout << static_cast<char>(registers[arg1]) << std::flush;
+                std::cout << static_cast<char>(registers[arg1]) << std::endl;
                 break;
 
             case Opcode::Printcm:
@@ -305,7 +306,7 @@ void CPU::executeNextInstruction()
                     terminated = true;
                     return;
                 }
-                std::cout << static_cast<char>(mem.get8(registers[arg1], current->getPid())) << std::flush;
+                std::cout << static_cast<char>(mem.get8(registers[arg1], current->getPid())) << std::endl;
                 break;
 
             case Opcode::Jmp:
@@ -399,6 +400,7 @@ void CPU::executeNextInstruction()
                 break;
 
             case Opcode::Call:
+            {
                 registers[13] -= 4;
                 // Stack overflow check
                 if (registers[13] < current->heapEnd) 
@@ -409,11 +411,13 @@ void CPU::executeNextInstruction()
                     terminated = true; 
                     return;
                 }
-                mem.set32(registers[13], registers[11]);
-                registers[11] += registers[arg1]; 
+                uint32_t physical_addr = mem.getaddress(registers[13], current->getPid());
+                mem.set32(physical_addr, registers[11] + 9);
+                registers[11] += arg1; 
                 shouldIncrementIP = false;
                 break;
-
+            }
+            
             case Opcode::Callm:
                 registers[13] -= 4;
                 // Stack overflow check
@@ -431,7 +435,7 @@ void CPU::executeNextInstruction()
                 break;
 
             case Opcode::Ret:
-                registers[13] += 4; 
+                
                 // Stack overflow check
                 if (registers[13] < current->heapEnd) 
                 {
@@ -442,6 +446,7 @@ void CPU::executeNextInstruction()
                     return;
                 }
                 registers[11] = mem.get32(registers[13], current->getPid());
+                registers[13] += 4; 
                 shouldIncrementIP = false;
                 break;
 
@@ -480,7 +485,7 @@ void CPU::executeNextInstruction()
 
             case Opcode::Sleep:
                 
-                //std::cout << "[DEBUG] CPU requested sleep for " << registers[arg1] << " cycles.\n";
+                //std::cout << " [OS] CPU requested sleep for " << registers[arg1] << " cycles.\n";
                 sleepRequested = true;
                 sleepDuration = registers[arg1];
 
@@ -836,7 +841,10 @@ void CPU::executeNextInstruction()
         // Check for quantum cycle expiration
         if ( !terminated && current->clockCycles >= current->timeQuantum)
         {
+            systemClock = 0;
             quantumExpired = true;
+            
+
         }
     }
     catch (const std::exception& e) // Handle errors during cpu execution

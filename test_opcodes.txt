@@ -1,0 +1,34 @@
+; === Initialization and Setup ===
+movi r1 $10       ; r1 = 10
+movi r2 $5        ; r2 = 5
+movr r3 r1        ; r3 = r1 (10)
+movrm r1 r2       ; MEM[r2] = r1 → store 10 at address 5
+movmr r4 r1       ; r4 = MEM[r1] → load from address 10 into r4
+incr r1           ; r1 += 1 → r1 = 11
+addi r5 $3        ; r5 = r5 + 3 → r5 = 3 (assuming r5 was 0)
+addr r6 r2        ; r6 = r6 + r2 → r6 = 5 (assuming r6 was 0)
+
+; === Comparison & Conditional Branching ===
+cmpi r1 $11       ; Compare r1 to 11
+jlt $63           ; If r1 < 11, jump to address Program Continues Here
+jei $18           ; If r1 == 11, jump to subroutine Body
+jmpa $90          ; Else, jump to continue program at address 90
+
+; === Subroutine Call Block ===
+call $18          ; Push return address and jump to actual subroutine at 0x18 (decimal 24)
+
+; === Returned Here ===
+jmpa $153         ; After returning, skip to Program Continues Here
+
+; === Subroutine Body ===
+movi r4 $65       ; r4 = 65 → ASCII 'A'
+printcr r4        ; Print character 'A'
+ret               ; Returned Here
+
+; === Program Continues Here ===
+movi r4 $66       ; r4 = 66 → ASCII 'B'
+printcr r4        ; Print character 'B'
+movi r4 $67       ; r4 = 67 → ASCII 'C'
+printcr r4        ; Print character 'C'
+exit              ; Terminate program
+

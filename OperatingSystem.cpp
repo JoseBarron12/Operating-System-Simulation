@@ -296,7 +296,7 @@ void OperatingSystem::start()
             next->sleepCounter = cpu.getSleepDuration();
             //std::cout << "[DEBUG] process is: " << next->state << std::endl;
             next->state = "Sleeping";
-            //std::cout << "[DEBUG] process is: " << next->state << std::endl;
+            std::cout << "[OS] Process " << next->processId << " is: " << next->state << " for " << next->sleepCounter << " cycles"<< std::endl;
             
             next->contextSwitches++; 
             cpu.clearSleepRequest();
@@ -309,10 +309,11 @@ void OperatingSystem::start()
         {
             next->state = "Terminated";
             cpu.clearTerminatedFlag();
+            next->totalClockCycles += next->clockCycles;
 
-            std::cout << "\n[PROCESS TERMINATED] PID: " << next->processId << " | Priority: " << next->priority << "\n";
-            std::cout << "  → Clock Cycles: " << next->clockCycles << "\n";
-            std::cout << "  → Context Switches: " << next->contextSwitches + 1 << "\n";  // +1 since it's ending
+            std::cout << "\n[PROCESS TERMINATED] PID: " << std::dec << next->processId << " | Priority: " << std::dec << next->priority << "\n";
+            std::cout << "  → Clock Cycles: " << std::dec << next->totalClockCycles << "\n";
+            std::cout << "  → Context Switches: " << std::dec << next->contextSwitches + 1 << "\n";  // +1 since it's ending
             int processPageFaults = 0;
             auto table = mem.getPagingTable();
             for (const auto& [virtAddr, entry] : table) {
@@ -378,12 +379,14 @@ void OperatingSystem::start()
         
         if (cpu.isExpired()) 
         {
-            //std::cout << "[DEBUG] Time quantum expired for Process " << next->processId << "\n";
+            std::cout << "[OS] Time quantum expired for Process " << next->processId << "\n";
             next->saveState(cpu.getRegisters(), cpu.getSignFlag(), cpu.getZeroFlag());
             next->state = "Ready";
             scheduler.addProcess(next);  // Put back into ready queue
             next->contextSwitches++;
             cpu.clearExpiredFlag();
+            next->totalClockCycles += next->clockCycles;
+            next->clockCycles = 0;
             continue;  // Go to next iteration of the loop
         }
         
@@ -430,10 +433,11 @@ bool OperatingSystem::terminateProcessByPid(uint32_t pid)
         PCB* next = *it;
         next->state = "Terminated";
         cpu.clearTerminatedFlag();
-        std::cout << "[PROCESS KILLED] PID: " << next->processId << " terminated by another process\n";
-        std::cout << "\n[PROCESS TERMINATED] PID: " << next->processId << "\n";
-        std::cout << "  → Clock Cycles: " << next->clockCycles << "\n";
-        std::cout << "  → Context Switches: " << next->contextSwitches + 1 << "\n";  // +1 since it's ending
+        next->totalClockCycles += next->clockCycles;
+        std::cout << "[PROCESS KILLED] PID: " << std::dec << next->processId << " terminated by another process\n";
+        std::cout << "\n[PROCESS TERMINATED] PID: " << std::dec << next->processId << "\n";
+        std::cout << "  → Clock Cycles: " << std::dec << next->totalClockCycles << "\n";
+        std::cout << "  → Context Switches: " << std::dec << next->contextSwitches + 1 << "\n";  // +1 since it's ending
         int processPageFaults = 0;
         auto table = mem.getPagingTable();
         for (const auto& [virtAddr, entry] : table) 

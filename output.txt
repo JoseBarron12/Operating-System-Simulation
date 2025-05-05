@@ -1,0 +1,588 @@
+[SHARED INIT] Region 0 starts at physical address 0x400
+[SHARED INIT] Region 1 starts at physical address 0x7e8
+[SHARED INIT] Region 2 starts at physical address 0xbd0
+[SHARED INIT] Region 3 starts at physical address 0xfb8
+[SHARED INIT] Region 4 starts at physical address 0x13a0
+[SHARED INIT] Region 5 starts at physical address 0x1788
+[SHARED INIT] Region 6 starts at physical address 0x1b70
+[SHARED INIT] Region 7 starts at physical address 0x1f58
+[SHARED INIT] Region 8 starts at physical address 0x2340
+[SHARED INIT] Region 9 starts at physical address 0x2728
+[IDLE ALLOCATION] Process 999 fixed at physical 0x2c00
+[MEMORY ALLOCATION] Process 1 assigned memory at 0 - 1536
+[MEMORY ALLOCATION] Process 1 assigned memory at 0x0 - 0x600
+[MEMORY ALLOCATION] Process 2 assigned memory at 1536 - 2816
+[MEMORY ALLOCATION] Process 2 assigned memory at 0x600 - 0xb00
+[MEMORY ALLOCATION] Process 3 assigned memory at 2816 - 4096
+[MEMORY ALLOCATION] Process 3 assigned memory at 0xb00 - 0x1000
+[MEMORY ALLOCATION] Process 4 assigned memory at 4096 - 5376
+[MEMORY ALLOCATION] Process 4 assigned memory at 0x1000 - 0x1500
+[MEMORY ALLOCATION] Process 5 assigned memory at 5376 - 6656
+[MEMORY ALLOCATION] Process 5 assigned memory at 0x1500 - 0x1a00
+[MEMORY ALLOCATION] Process 6 assigned memory at 6656 - 7936
+[MEMORY ALLOCATION] Process 6 assigned memory at 0x1a00 - 0x1f00
+[MEMORY ALLOCATION] Process 7 assigned memory at 7936 - 9216
+[MEMORY ALLOCATION] Process 7 assigned memory at 0x1f00 - 0x2400
+[MEMORY ALLOCATION] Process 8 assigned memory at 9216 - 10496
+[MEMORY ALLOCATION] Process 8 assigned memory at 0x2400 - 0x2900
+[MEMORY ALLOCATION] Process 9 assigned memory at 10496 - 11776
+[MEMORY ALLOCATION] Process 9 assigned memory at 0x2900 - 0x2e00
+[MEMORY ALLOCATION] Process 10 assigned memory at 11776 - 13056
+[MEMORY ALLOCATION] Process a assigned memory at 0x2e00 - 0x3300
+[MEMORY ALLOCATION] Process 11 assigned memory at 13056 - 14336
+[MEMORY ALLOCATION] Process b assigned memory at 0x3300 - 0x3800
+[MEMORY ALLOCATION] Process 12 assigned memory at 14336 - 15616
+[MEMORY ALLOCATION] Process c assigned memory at 0x3800 - 0x3d00
+[MEMORY ALLOCATION] Process 13 assigned memory at 15616 - 16896
+[MEMORY ALLOCATION] Process d assigned memory at 0x3d00 - 0x4200
+[MEMORY ALLOCATION] Process 14 assigned memory at 16896 - 18176
+[MEMORY ALLOCATION] Process e assigned memory at 0x4200 - 0x4700
+[MEMORY ALLOCATION] Process 15 assigned memory at 18176 - 19456
+[MEMORY ALLOCATION] Process f assigned memory at 0x4700 - 0x4c00
+[MEMORY ALLOCATION] Process 16 assigned memory at 19456 - 20736
+[MEMORY ALLOCATION] Process 10 assigned memory at 0x4c00 - 0x5100
+[MEMORY ALLOCATION] Process 17 assigned memory at 20736 - 22016
+[MEMORY ALLOCATION] Process 11 assigned memory at 0x5100 - 0x5600
+[MEMORY ALLOCATION] Process 18 assigned memory at 22016 - 23296
+[MEMORY ALLOCATION] Process 12 assigned memory at 0x5600 - 0x5b00
+[MEMORY ALLOCATION] Process 19 assigned memory at 23296 - 24576
+[MEMORY ALLOCATION] Process 13 assigned memory at 0x5b00 - 0x6000
+Starting OS with Process and Program Management...
+[MEMORY] Total memory: 11520 bytes
+[MEMORY] Used memory (programs + shared): 24576 bytes
+[MEMORY] Remaining memory: 4294954240 bytes
+[MEMORY] Shared memory regions mapped at: 
+[SCHEDULER] Process 1 is now running (Priority: 32)
+[MAP] Mapped virtual page 0x0 → physical page 0
+[MAP] Mapped virtual page 0x200 → physical page 1
+[MAP] Mapped virtual page 0x100 → physical page 2
+[MAP] Mapped virtual page 0x300 → physical page 3
+[PAGE FAULT] Page 0x0 not in memory.
+[ALLOCATE] Allocated physical page 3
+[SWAP-IN] No saved page on disk for 0x0, zero-filled.
+[PAGE FAULT] Page 0x100 not in memory.
+[ALLOCATE] Allocated physical page 2
+[SWAP-IN] No saved page on disk for 0x100, zero-filled.
+[OS] Time quantum expired for Process 1
+[SCHEDULER] Process 1 is now running (Priority: 20)
+[ALLOCATE] Allocated physical page 1
+[MAP] Mapped virtual page 0x500 → physical page 1
+[PAGE FAULT] Page 0x500 not in memory.
+[ALLOCATE] Allocated physical page 0
+[SWAP-IN] No saved page on disk for 0x500, zero-filled.
+A
+B
+C
+[OS] Time quantum expired for Process 1
+[SCHEDULER] Process 1 is now running (Priority: 20)
+Program terminated.
+
+[PROCESS TERMINATED] PID: 1 | Priority: 32
+  → Clock Cycles: 21
+  → Context Switches: 3
+  → Page Faults: 3
+  → Pages Used:
+    Virtual Page: 0x500 | Physical Page: 0 | IsValid: true | IsDirty: false | LastUsed: 195
+    Virtual Page: 0x300 | Physical Page: 3 | IsValid: false | IsDirty: true | LastUsed: 0
+    Virtual Page: 0x100 | Physical Page: 2 | IsValid: true | IsDirty: false | LastUsed: 50
+    Virtual Page: 0x200 | Physical Page: 1 | IsValid: false | IsDirty: true | LastUsed: 0
+    Virtual Page: 0x0 | Physical Page: 3 | IsValid: true | IsDirty: true | LastUsed: 249
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 1 2 3 0 
+[SCHEDULER] Process 2 is now running (Priority: 31)
+[MAP] Mapped virtual page 0x600 → physical page 0
+[MAP] Mapped virtual page 0x700 → physical page 1
+[MAP] Mapped virtual page 0x800 → physical page 2
+[MAP] Mapped virtual page 0x900 → physical page 3
+[PAGE FAULT] Page 0x600 not in memory.
+[ALLOCATE] Allocated physical page 1
+[SWAP-IN] No saved page on disk for 0x600, zero-filled.
+[ALLOCATE] Allocated physical page 2
+[MAP] Mapped virtual page 0x500 → physical page 2
+[PAGE FAULT] Page 0x500 not in memory.
+[ALLOCATE] Allocated physical page 3
+[SWAP-IN] No saved page on disk for 0x500, zero-filled.
+[SCHEDULER] Process 3 is now running (Priority: 1e)
+[MAP] Mapped virtual page 0xb00 → physical page 0
+[MAP] Mapped virtual page 0xc00 → physical page 1
+[MAP] Mapped virtual page 0xd00 → physical page 2
+[MAP] Mapped virtual page 0xe00 → physical page 3
+[PAGE FAULT] Page 0xb00 not in memory.
+[ALLOCATE] Allocated physical page 0
+[SWAP-IN] No saved page on disk for 0xb00, zero-filled.
+[SLEEP CYCLE] Process 2 now has 2 cycles left
+[ILLEGAL ACCESS] Process 3 attempted access to virtual address 0x503 owned by PID 2
+[CPU ERROR] Illegal memory access by process
+[CPU STATE] Terminating process 3
+  Register[0] = 0x0
+  Register[1] = 0x500
+  Register[2] = 0x0
+  Register[3] = 0x0
+  Register[4] = 0x0
+  Register[5] = 0x0
+  Register[6] = 0x0
+  Register[7] = 0x0
+  Register[8] = 0x0
+  Register[9] = 0x0
+  Register[10] = 0x0
+  Register[11] = 0xb09
+  Register[12] = 0x3
+  Register[13] = 0x44c
+  Register[14] = 0x0
+[SLEEP CYCLE] Process 2 now has 1 cycles left
+
+[PROCESS TERMINATED] PID: 3 | Priority: 30
+  → Clock Cycles: 2
+  → Context Switches: 1
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0xe00 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0xd00 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0xc00 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0xb00 | Physical Page: 0 | IsValid: true | IsDirty: false | LastUsed: 337
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
+[SCHEDULER] Process 4 is now running (Priority: 29)
+[MAP] Mapped virtual page 0x1000 → physical page 0
+[MAP] Mapped virtual page 0x1100 → physical page 1
+[MAP] Mapped virtual page 0x1200 → physical page 2
+[MAP] Mapped virtual page 0x1300 → physical page 3
+[PAGE FAULT] Page 0x1000 not in memory.
+[ALLOCATE] Allocated physical page 0
+[SWAP-IN] No saved page on disk for 0x1000, zero-filled.
+[SLEEP CYCLE] Process 2 now has 0 cycles left
+[WAKE UP] Process 2 is now Ready
+[PREEMPTION] Higher-priority process 2 is waking up. Forcing CPU to yield.
+[SCHEDULER] Process 2 is now running (Priority: 1f)
+Register 3: 3
+[SCHEDULER] Process 4 is now running (Priority: 29)
+[PROCESS KILLED] PID: 2 terminated by another process
+
+[PROCESS TERMINATED] PID: 2
+  → Clock Cycles: 7
+  → Context Switches: 3
+  → Page Faults: 2
+  → Pages Used:
+    Virtual Page: 0x500 | Physical Page: 3 | IsValid: true | IsDirty: false | LastUsed: 293
+    Virtual Page: 0x900 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x800 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x700 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x600 | Physical Page: 1 | IsValid: true | IsDirty: false | LastUsed: 370
+  → Heap Allocations:
+[TERMINATE OPCODE] Process 4 terminated Process 2
+Program terminated.
+
+[PROCESS TERMINATED] PID: 4 | Priority: 29
+  → Clock Cycles: 3
+  → Context Switches: 1
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0x1100 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x1000 | Physical Page: 0 | IsValid: true | IsDirty: false | LastUsed: 388
+    Virtual Page: 0x1200 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x1300 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
+[SCHEDULER] Process 5 is now running (Priority: 28)
+[MAP] Mapped virtual page 0x1500 → physical page 0
+[MAP] Mapped virtual page 0x1600 → physical page 1
+[MAP] Mapped virtual page 0x1700 → physical page 2
+[MAP] Mapped virtual page 0x1800 → physical page 3
+[PAGE FAULT] Page 0x1500 not in memory.
+[ALLOCATE] Allocated physical page 0
+[SWAP-IN] No saved page on disk for 0x1500, zero-filled.
+[LOCK] Process 5 acquired lock 1
+Register 2: 333
+Program terminated.
+
+[PROCESS TERMINATED] PID: 5 | Priority: 28
+  → Clock Cycles: 5
+  → Context Switches: 1
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0x1800 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x1700 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x1600 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x1500 | Physical Page: 0 | IsValid: true | IsDirty: false | LastUsed: 443
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
+[SCHEDULER] Process 6 is now running (Priority: 27)
+[MAP] Mapped virtual page 0x1a00 → physical page 0
+[MAP] Mapped virtual page 0x1b00 → physical page 1
+[MAP] Mapped virtual page 0x1c00 → physical page 2
+[MAP] Mapped virtual page 0x1d00 → physical page 3
+[PAGE FAULT] Page 0x1a00 not in memory.
+[ALLOCATE] Allocated physical page 0
+[SWAP-IN] No saved page on disk for 0x1a00, zero-filled.
+[LOCK] Process 6 acquired lock 1
+[SCHEDULER] Process 7 is now running (Priority: 1a)
+[MAP] Mapped virtual page 0x1f00 → physical page 0
+[MAP] Mapped virtual page 0x2000 → physical page 1
+[MAP] Mapped virtual page 0x2100 → physical page 2
+[MAP] Mapped virtual page 0x2200 → physical page 3
+[PAGE FAULT] Page 0x1f00 not in memory.
+[ALLOCATE] Allocated physical page 1
+[SWAP-IN] No saved page on disk for 0x1f00, zero-filled.
+[SLEEP CYCLE] Process 6 now has 2 cycles left
+[LOCK] Process 7 waiting on lock 1
+[SLEEP CYCLE] Process 6 now has 1 cycles left
+[SCHEDULER] Process 8 is now running (Priority: 19)
+[MAP] Mapped virtual page 0x2400 → physical page 0
+[MAP] Mapped virtual page 0x2500 → physical page 1
+[MAP] Mapped virtual page 0x2600 → physical page 2
+[MAP] Mapped virtual page 0x2700 → physical page 3
+[PAGE FAULT] Page 0x2400 not in memory.
+[ALLOCATE] Allocated physical page 2
+[SWAP-IN] No saved page on disk for 0x2400, zero-filled.
+[SLEEP CYCLE] Process 6 now has 0 cycles left
+[WAKE UP] Process 6 is now Ready
+[PREEMPTION] Higher-priority process 6 is waking up. Forcing CPU to yield.
+[SCHEDULER] Process 6 is now running (Priority: 1b)
+Register 2: 111
+Program terminated.
+[LOCK] Lock 1 reassigned to process 7 after 6 exited
+
+[PROCESS TERMINATED] PID: 6 | Priority: 27
+  → Clock Cycles: 8
+  → Context Switches: 2
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0x1d00 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x1c00 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x1b00 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x1a00 | Physical Page: 0 | IsValid: true | IsDirty: false | LastUsed: 576
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
+[SCHEDULER] Process 7 is now running (Priority: 26)
+Register 2: 222
+Program terminated.
+
+[PROCESS TERMINATED] PID: 7 | Priority: 26
+  → Clock Cycles: 6
+  → Context Switches: 2
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0x2200 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x2100 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x1f00 | Physical Page: 1 | IsValid: true | IsDirty: false | LastUsed: 612
+    Virtual Page: 0x2000 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
+[SCHEDULER] Process 8 is now running (Priority: 25)
+REQUESTED SIZE: 600
+HEAPSIZE: 512
+[HEAP] Allocation failed for Process 8: not enough space.
+Register 1: 0
+Program terminated.
+
+[PROCESS TERMINATED] PID: 8 | Priority: 25
+  → Clock Cycles: 4
+  → Context Switches: 1
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0x2600 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x2500 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x2400 | Physical Page: 2 | IsValid: true | IsDirty: false | LastUsed: 639
+    Virtual Page: 0x2700 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
+[SCHEDULER] Process 9 is now running (Priority: 24)
+[MAP] Mapped virtual page 0x2900 → physical page 0
+[MAP] Mapped virtual page 0x2a00 → physical page 1
+[MAP] Mapped virtual page 0x2b00 → physical page 2
+[MAP] Mapped virtual page 0x2c00 → physical page 3
+[PAGE FAULT] Page 0x2900 not in memory.
+[ALLOCATE] Allocated physical page 0
+[SWAP-IN] No saved page on disk for 0x2900, zero-filled.
+REQUESTED SIZE: 12c
+HEAPSIZE: 200
+[HEAP] Process 9 allocated 12c bytes at 0x4c6
+Register 1: 1222
+REQUESTED SIZE: 300
+HEAPSIZE: 512
+[HEAP] Process 9 allocated 300 bytes at 0x5f2
+Register 2: 1522
+[HEAP] Process 9 freed memory starting at address 0x4c6
+REQUESTED SIZE: 200
+HEAPSIZE: 512
+[HEAP] Process 9 allocated 200 bytes at 0x71e
+Register 3: 1822
+[OS] Time quantum expired for Process 9
+[SCHEDULER] Process 9 is now running (Priority: 24)
+Program terminated.
+
+[PROCESS TERMINATED] PID: 9 | Priority: 24
+  → Clock Cycles: 11
+  → Context Switches: 2
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0x2c00 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x2b00 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x2a00 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x2900 | Physical Page: 0 | IsValid: true | IsDirty: false | LastUsed: 760
+  → Heap Allocations:
+    Addr: 0x4c6, Size: 300, Used: No
+    Addr: 0x5f2, Size: 300, Used: Yes
+    Addr: 0x71e, Size: 200, Used: Yes
+[Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
+[SCHEDULER] Process 10 is now running (Priority: 23)
+[MAP] Mapped virtual page 0x2e00 → physical page 0
+[MAP] Mapped virtual page 0x2f00 → physical page 1
+[MAP] Mapped virtual page 0x3000 → physical page 2
+[MAP] Mapped virtual page 0x3100 → physical page 3
+[PAGE FAULT] Page 0x2e00 not in memory.
+[ALLOCATE] Allocated physical page 0
+[SWAP-IN] No saved page on disk for 0x2e00, zero-filled.
+[SCHEDULER] Process b is now running (Priority: 16)
+[MAP] Mapped virtual page 0x3300 → physical page 0
+[MAP] Mapped virtual page 0x3400 → physical page 1
+[MAP] Mapped virtual page 0x3500 → physical page 2
+[MAP] Mapped virtual page 0x3600 → physical page 3
+[PAGE FAULT] Page 0x3300 not in memory.
+[ALLOCATE] Allocated physical page 1
+[SWAP-IN] No saved page on disk for 0x3300, zero-filled.
+[SLEEP CYCLE] Process a now has 4 cycles left
+[SLEEP CYCLE] Process a now has 3 cycles left
+[SCHEDULER] Process c is now running (Priority: 15)
+[MAP] Mapped virtual page 0x3800 → physical page 0
+[MAP] Mapped virtual page 0x3900 → physical page 1
+[MAP] Mapped virtual page 0x3a00 → physical page 2
+[MAP] Mapped virtual page 0x3b00 → physical page 3
+[PAGE FAULT] Page 0x3800 not in memory.
+[ALLOCATE] Allocated physical page 2
+[SWAP-IN] No saved page on disk for 0x3800, zero-filled.
+[SLEEP CYCLE] Process a now has 2 cycles left
+[SLEEP CYCLE] Process b now has 4 cycles left
+REQUESTED SIZE: 64
+HEAPSIZE: 200
+[HEAP] Process c allocated 64 bytes at 0x448
+[SLEEP CYCLE] Process 10 now has 1 cycles left
+[SLEEP CYCLE] Process 11 now has 3 cycles left
+Register 2: 1096
+[SLEEP CYCLE] Process 10 now has 0 cycles left
+[WAKE UP] Process 10 is now Ready
+[PREEMPTION] Higher-priority process 10 is waking up. Forcing CPU to yield.
+[SLEEP CYCLE] Process 11 now has 2 cycles left
+[SCHEDULER] Process 10 is now running (Priority: 23)
+Program terminated.
+[SLEEP CYCLE] Process 11 now has 1 cycles left
+
+[PROCESS TERMINATED] PID: 10 | Priority: 23
+  → Clock Cycles: 3
+  → Context Switches: 2
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0x3100 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x3000 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x2f00 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x2e00 | Physical Page: 0 | IsValid: true | IsDirty: false | LastUsed: 852
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
+[SCHEDULER] Process 12 is now running (Priority: 21)
+Program terminated.
+[SLEEP CYCLE] Process 11 now has 0 cycles left
+[WAKE UP] Process 11 is now Ready
+[PREEMPTION] Higher-priority process 11 is waking up. Forcing CPU to yield.
+[SCHEDULER] Process 11 is now running (Priority: 22)
+Program terminated.
+
+[PROCESS TERMINATED] PID: 11 | Priority: 22
+  → Clock Cycles: 3
+  → Context Switches: 2
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0x3600 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x3500 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x3400 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x3300 | Physical Page: 1 | IsValid: true | IsDirty: false | LastUsed: 870
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
+[SCHEDULER] Process 12 is now running (Priority: 21)
+Program terminated.
+
+[PROCESS TERMINATED] PID: 12 | Priority: 21
+  → Clock Cycles: 5
+  → Context Switches: 1
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0x3900 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x3800 | Physical Page: 2 | IsValid: true | IsDirty: false | LastUsed: 879
+    Virtual Page: 0x3b00 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x3a00 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+  → Heap Allocations:
+    Addr: 0x448, Size: 100, Used: Yes
+[Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
+[SCHEDULER] Process 13 is now running (Priority: 20)
+[MAP] Mapped virtual page 0x3d00 → physical page 0
+[MAP] Mapped virtual page 0x3e00 → physical page 1
+[MAP] Mapped virtual page 0x3f00 → physical page 2
+[MAP] Mapped virtual page 0x4000 → physical page 3
+[PAGE FAULT] Page 0x3d00 not in memory.
+[ALLOCATE] Allocated physical page 0
+[SWAP-IN] No saved page on disk for 0x3d00, zero-filled.
+[EVENT] Process d waiting on event 0
+[SCHEDULER] Process e is now running (Priority: 13)
+[MAP] Mapped virtual page 0x4200 → physical page 0
+[MAP] Mapped virtual page 0x4300 → physical page 1
+[MAP] Mapped virtual page 0x4400 → physical page 2
+[MAP] Mapped virtual page 0x4500 → physical page 3
+[PAGE FAULT] Page 0x4200 not in memory.
+[ALLOCATE] Allocated physical page 1
+[SWAP-IN] No saved page on disk for 0x4200, zero-filled.
+[EVENT] Waking process d waiting on event 0
+[EVENT] Signaled event 0
+Program terminated.
+
+[PROCESS TERMINATED] PID: 14 | Priority: 19
+  → Clock Cycles: 2
+  → Context Switches: 1
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0x4500 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x4400 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x4300 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x4200 | Physical Page: 1 | IsValid: true | IsDirty: false | LastUsed: 918
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 1 2 3 
+[SCHEDULER] Process 13 is now running (Priority: 20)
+Register 1: 99
+Program terminated.
+
+[PROCESS TERMINATED] PID: 13 | Priority: 20
+  → Clock Cycles: 5
+  → Context Switches: 2
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0x4000 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x3f00 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x3e00 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x3d00 | Physical Page: 0 | IsValid: true | IsDirty: false | LastUsed: 954
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
+[SCHEDULER] Process 15 is now running (Priority: 18)
+[MAP] Mapped virtual page 0x4700 → physical page 0
+[MAP] Mapped virtual page 0x4800 → physical page 1
+[MAP] Mapped virtual page 0x4900 → physical page 2
+[MAP] Mapped virtual page 0x4a00 → physical page 3
+[PAGE FAULT] Page 0x4700 not in memory.
+[ALLOCATE] Allocated physical page 0
+[SWAP-IN] No saved page on disk for 0x4700, zero-filled.
+[MAP] Mapped virtual page 0xff00 → physical page 4
+[SHARED] Process 15 mapped shared region 0 to virtual address 0xff00
+[PAGE FAULT] Page 0xff00 not in memory.
+[ALLOCATE] Allocated physical page 1
+[SWAP-IN] No saved page on disk for 0xff00, zero-filled.
+Program terminated.
+
+[PROCESS TERMINATED] PID: 15 | Priority: 18
+  → Clock Cycles: 5
+  → Context Switches: 1
+  → Page Faults: 2
+  → Pages Used:
+    Virtual Page: 0x4a00 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0xff00 | Physical Page: 1 | IsValid: true | IsDirty: false | LastUsed: 1001
+    Virtual Page: 0x4900 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x4800 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x4700 | Physical Page: 0 | IsValid: true | IsDirty: false | LastUsed: 1010
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
+[SCHEDULER] Process 16 is now running (Priority: 17)
+[MAP] Mapped virtual page 0x4c00 → physical page 0
+[MAP] Mapped virtual page 0x4d00 → physical page 1
+[MAP] Mapped virtual page 0x4e00 → physical page 2
+[MAP] Mapped virtual page 0x4f00 → physical page 3
+[PAGE FAULT] Page 0x4c00 not in memory.
+[ALLOCATE] Allocated physical page 0
+[SWAP-IN] No saved page on disk for 0x4c00, zero-filled.
+[MAP] Mapped virtual page 0xff00 → physical page 4
+[SHARED] Process 16 mapped shared region 0 to virtual address 0xff00
+[PAGE FAULT] Page 0xff00 not in memory.
+[ALLOCATE] Allocated physical page 1
+[SWAP-IN] No saved page on disk for 0xff00, zero-filled.
+Register 2: 123
+Program terminated.
+
+[PROCESS TERMINATED] PID: 16 | Priority: 17
+  → Clock Cycles: 5
+  → Context Switches: 1
+  → Page Faults: 2
+  → Pages Used:
+    Virtual Page: 0xff00 | Physical Page: 1 | IsValid: true | IsDirty: false | LastUsed: 1051
+    Virtual Page: 0x4f00 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x4e00 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x4d00 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x4c00 | Physical Page: 0 | IsValid: true | IsDirty: false | LastUsed: 1069
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
+[SCHEDULER] Process 17 is now running (Priority: 16)
+[MAP] Mapped virtual page 0x5100 → physical page 0
+[MAP] Mapped virtual page 0x5200 → physical page 1
+[MAP] Mapped virtual page 0x5300 → physical page 2
+[MAP] Mapped virtual page 0x5400 → physical page 3
+[PAGE FAULT] Page 0x5100 not in memory.
+[ALLOCATE] Allocated physical page 0
+[SWAP-IN] No saved page on disk for 0x5100, zero-filled.
+Program terminated.
+
+[PROCESS TERMINATED] PID: 17 | Priority: 4
+  → Clock Cycles: 2
+  → Context Switches: 1
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0x5300 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x5200 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x5100 | Physical Page: 0 | IsValid: true | IsDirty: false | LastUsed: 1091
+    Virtual Page: 0x5400 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
+[SCHEDULER] Process 18 is now running (Priority: 15)
+[MAP] Mapped virtual page 0x5600 → physical page 0
+[MAP] Mapped virtual page 0x5700 → physical page 1
+[MAP] Mapped virtual page 0x5800 → physical page 2
+[MAP] Mapped virtual page 0x5900 → physical page 3
+[PAGE FAULT] Page 0x5600 not in memory.
+[ALLOCATE] Allocated physical page 0
+[SWAP-IN] No saved page on disk for 0x5600, zero-filled.
+Program terminated.
+
+[PROCESS TERMINATED] PID: 18 | Priority: 5
+  → Clock Cycles: 3
+  → Context Switches: 1
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0x5900 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x5800 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x5700 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x5600 | Physical Page: 0 | IsValid: true | IsDirty: false | LastUsed: 1124
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
+[SCHEDULER] Process 19 is now running (Priority: 14)
+[MAP] Mapped virtual page 0x5b00 → physical page 0
+[MAP] Mapped virtual page 0x5c00 → physical page 1
+[MAP] Mapped virtual page 0x5d00 → physical page 2
+[MAP] Mapped virtual page 0x5e00 → physical page 3
+[PAGE FAULT] Page 0x5b00 not in memory.
+[ALLOCATE] Allocated physical page 0
+[SWAP-IN] No saved page on disk for 0x5b00, zero-filled.
+Program terminated.
+
+[PROCESS TERMINATED] PID: 19 | Priority: 14
+  → Clock Cycles: 2
+  → Context Switches: 1
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0x5e00 | Physical Page: 3 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x5d00 | Physical Page: 2 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x5c00 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x5b00 | Physical Page: 0 | IsValid: true | IsDirty: false | LastUsed: 1146
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
+[OS] Only idle process remains. Halting system...
+===== Paging Table =====
+Start Address: 0xf000 | Physical Page: 2c | IsValid: true | IsDirty: false | PID: 999 | LastUsed: 6
+
+=== Memory Metrics Summary ===
+Total Page Faults: 24
+Pages Swapped Out: 0
+Pages Swapped In:  0
+Free Physical Pages Remaining: 4
