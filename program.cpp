@@ -1,3 +1,13 @@
+// *************************************************************************** 
+// 
+//   Jose Barron 
+//   Z2013735
+//   CSCI 480 PE1
+// 
+//   I certify that this is my own work and where appropriate an extension 
+//   of the starter code provided for the assignment. 
+// ***************************************************************************
+
 #include <vector>
 #include <string>
 #include <fstream>
@@ -7,11 +17,20 @@
 #include "program.h"
 #include "Opcode.h"
 
+/**
+ * Constructs a Program object and loads the program from the provided file.
+ * @param filename Path to the assembly-like program file.
+ */
 Program::Program(const std::string& filename)
 {
     loadProgram(filename);
 }
 
+/**
+ * Reads instructions from a text file and converts them to binary format.
+ * Removes comments and whitespace, then delegates conversion to convertInstruction().
+ * @param filename Name of the file containing the instructions.
+ */
 void Program::loadProgram(const std::string& filename)
 {
     std::ifstream file(filename);
@@ -53,6 +72,11 @@ void Program::loadProgram(const std::string& filename)
 
 }
 
+/**
+ * Parses a single line of instruction and adds the binary form to the instruction list.
+ * With the assumption that each instruction is 9 bytes, and both arguments are always read into memory.
+ * @param line A cleaned and trimmed line of code with opcode and optional parameters.
+ */
 void Program::convertInstruction(const std::string& line)
 {
     if (line.empty()) return; 
@@ -91,6 +115,13 @@ void Program::convertInstruction(const std::string& line)
     instructions.push_back(arg2);
 }
 
+/**
+ * Loads the program's instructions into memory starting at a virtual address.
+ * Handles page mapping as needed and writes binary instructions sequentially.
+ * @param mem Memory reference to write to.
+ * @param start Starting virtual address.
+ * @param pid Process ID performing the write.
+ */
 void Program::loadIntoMemory(memory& mem, uint32_t start, uint32_t pid)
 {
     size_t addr = start;
@@ -130,7 +161,12 @@ void Program::loadIntoMemory(memory& mem, uint32_t start, uint32_t pid)
     }
 }
 
-
+/**
+ * Converts a string mnemonic into an Opcode enum value.
+ * Case-insensitive and uses a lookup table for mapping.
+ * @param instruction The string mnemonic to convert.
+ * @return The corresponding Opcode enum value, or Exit if invalid.
+ */
 Opcode Program::convertString(std::string instruction)
 {
     static const std::unordered_map<std::string, Opcode> opcodeMap = 
@@ -168,6 +204,11 @@ Opcode Program::convertString(std::string instruction)
     }
 }
 
+/**
+ * Calculates the total code size in bytes.
+ * Each instruction takes 9 bytes: 1 (opcode) + 4 (arg1) + 4 (arg2).
+ * @return Size of the instruction section of the program in bytes.
+ */
 uint32_t Program::getCodeSize() const 
 {
     return (instructions.size() / 3) * 9;

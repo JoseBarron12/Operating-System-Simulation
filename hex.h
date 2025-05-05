@@ -1,3 +1,12 @@
+// *************************************************************************** 
+// 
+//   Jose Barron 
+//   Z2013735
+//   CSCI 480 PE1
+// 
+//   I certify that this is my own work and where appropriate an extension 
+//   of the starter code provided for the assignment. 
+// ***************************************************************************
 #ifndef HEX_H_INC
 #define HEX_H_INC
 

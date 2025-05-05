@@ -1,18 +1,39 @@
+// *************************************************************************** 
+// 
+//   Jose Barron 
+//   Z2013735
+//   CSCI 480 PE1
+// 
+//   I certify that this is my own work and where appropriate an extension 
+//   of the starter code provided for the assignment. 
+// ***************************************************************************
+
 #include "cpu.h"
 #include <unordered_map>
 #include <algorithm>
 #include "OperatingSystem.h" 
 
+/** 
+ * Constructs CPU, and initializes registers, locks, events, system clock, and flags.
+ *
+ * @param memRef   Reference to memory.
+ * @param sched    Reference to the process scheduler.
+ */
 CPU::CPU(memory& memRef, ProcessScheduler& sched) : mem(memRef), scheduler(sched), systemClock(0), signFlag(false), zeroFlag(false)
 {
     registers[11] = 0;  // Instruction Pointer
     registers[12] = 0;  // Current Process ID
     registers[13] = mem.get_size() - 1;  // Stack Pointer
     registers[14] = 0;  // Global Memory Start
-    locks.resize(16, -1); 
-    eventStates.fill(false);
+    locks.resize(16, -1); // Locks
+    eventStates.fill(false); // Events
 }
 
+/** 
+ * Loads a program into memory starting at address 0.
+ * 
+ * @param program  Program to be loaded.
+ */
 void CPU::loadProgram(std::vector<uint8_t>& program)
 {
     for (int i = 0; i < program.size(); i++)
@@ -21,6 +42,12 @@ void CPU::loadProgram(std::vector<uint8_t>& program)
     }
 }
 
+/**
+ * Releases all locks currently held by the specified process ID and reassigns
+ * them to the highest priority process waiting.
+ *
+ * @param pid  Process ID of the process releasing the locks.
+ */
 void CPU::releaseAllHeldLocks(uint32_t pid) 
 {
     for (int i = 0; i < locks.size(); ++i) 
@@ -49,15 +76,18 @@ void CPU::releaseAllHeldLocks(uint32_t pid)
     }
 }
 
-
+/**
+ * Executes the next instruction of the currently running process, handling opcode
+ * decoding, memory accesses, register operations, system calls, and control flow.
+ * Includes error handling for invalid instructions and page faults.
+ */
 
 void CPU::executeNextInstruction()
 {
     try 
     {
 
-        uint32_t ip = registers[11];
-
+        uint32_t ip = registers[11]; // Instruction pointer
         /*
         if (ip >= mem.get_size()) 
         {
@@ -65,6 +95,8 @@ void CPU::executeNextInstruction()
                     << std::hex << ip << std::endl;
             exit(1);
         }*/
+        
+        // Process system and process clock cycles 
         systemClock++; 
         PCB* current = scheduler.getRunningProcess();
         if (current) 
@@ -74,23 +106,30 @@ void CPU::executeNextInstruction()
         else 
         {
             std::cerr << "[CPU ERROR] No running process found! Cannot increment clock cycle.\n";
+            terminated = true;
+            return;
         }
+        
+        // Read instruction from memory
         uint8_t opcodeByte = mem.get8(ip, current->getPid());
 
+        // Validate instruction byte
         if (opcodeByte == 0 || opcodeByte >= 0x34) 
         {
             std::cerr << "ERROR: Unknown opcode encountered: " 
                     << std::hex << static_cast<int>(opcodeByte) 
                     << " at " << ip << std::endl;
-            exit(1);
+            terminated = true;
+            return;
         }
 
+        // Read arguments from memory
         uint32_t arg1 = mem.get32(ip + 1, current->getPid());
         uint32_t arg2 = mem.get32(ip + 5, current->getPid());
         
         bool shouldIncrementIP = true;
 
-    
+        // Process each opcode, and perform instruction
         switch (static_cast<Opcode>(opcodeByte))
         {
             case Opcode::Incr:
@@ -788,19 +827,21 @@ void CPU::executeNextInstruction()
                 break;
         }
 
-        if (shouldIncrementIP) {
+        // Move to next instruction if allowed
+        if (shouldIncrementIP) 
+        {
             registers[11] = ip + 9;
         }
 
-
+        // Check for quantum cycle expiration
         if ( !terminated && current->clockCycles >= current->timeQuantum)
         {
             quantumExpired = true;
         }
     }
-    catch (const std::exception& e)
+    catch (const std::exception& e) // Handle errors during cpu execution
     {
-        if (std::string(e.what()) == "BLOCKED_PAGE_FAULT")
+        if (std::string(e.what()) == "BLOCKED_PAGE_FAULT") // Handle blocked memory
         {
             PCB* current = scheduler.getRunningProcess();
             if (current)
@@ -810,7 +851,7 @@ void CPU::executeNextInstruction()
             }
             
         }
-        else
+        else // Handle out of memory error
         {
             PCB* current = scheduler.getRunningProcess();
             if (current)
@@ -828,9 +869,12 @@ void CPU::executeNextInstruction()
     }
 }
 
+/**
+ * Main execution loop of the CPU. Repeatedly calls executeNextInstruction until
+ * it is terminated or yields control through preemption, sleep, or wait
+ */
 void CPU::run() 
 {
-    
     //std::cout << "[DEBUG] IP: " << std::hex << registers[11] << std::endl;
     
     quantumExpired = false;
@@ -839,7 +883,7 @@ void CPU::run()
     {
         executeNextInstruction();
 
-        if (onCycleCallback) onCycleCallback();
+        if (onCycleCallback) onCycleCallback(); 
 
         if (preemptNow) 
         {

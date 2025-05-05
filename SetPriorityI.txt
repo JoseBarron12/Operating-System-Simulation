@@ -1,2 +1,2 @@
-SetPriorityI $28
+SetPriorityI $4
 exit

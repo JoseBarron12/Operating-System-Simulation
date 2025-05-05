@@ -1,6 +1,20 @@
+// *************************************************************************** 
+// 
+//   Jose Barron 
+//   Z2013735
+//   CSCI 480 PE1
+// 
+//   I certify that this is my own work and where appropriate an extension 
+//   of the starter code provided for the assignment. 
+// ***************************************************************************
+
 #ifndef OPCODE_H
 #define OPCODE_H
 
+/**
+ * Enum representing the opcode set supported by the virtual CPU.
+ * Each opcode corresponds to a specific machine instruction.
+ */
 enum Opcode {
     Incr = 0x01,
     Addi = 0x02,

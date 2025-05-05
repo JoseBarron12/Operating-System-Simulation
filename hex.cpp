@@ -1,15 +1,13 @@
-//***************************************************************************
-//
-// Jose Barron
-// Z02013735
-// Fall 2024 CSCI 463 - PE1 Computer Architecture & Syst Org
-// Final Version 1: This program is intended to implement the existing
-// hex class, and the exisiting memoery class to simulate memory
-// Due Date: 11/08/24
-// I certify that this is my own work and where appropriate an extension
-// of the starter code provided for the assignment.
-//
-//***************************************************************************
+// *************************************************************************** 
+// 
+//   Jose Barron 
+//   Z2013735
+//   CSCI 480 PE1
+// 
+//   I certify that this is my own work and where appropriate an extension 
+//   of the starter code provided for the assignment. 
+// ***************************************************************************
+
 #include "hex.h"
 #include <iostream>
 #include <stdint.h>

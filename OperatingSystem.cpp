@@ -1,7 +1,24 @@
+// *************************************************************************** 
+// 
+//   Jose Barron 
+//   Z2013735
+//   CSCI 480 PE1
+// 
+//   I certify that this is my own work and where appropriate an extension 
+//   of the starter code provided for the assignment. 
+// ***************************************************************************
+
 #include "OperatingSystem.h"
 #include <iostream>
 #include <algorithm>
 
+/**
+ * Constructs the Operating System instance, initializing memory, CPU,
+ * and scheduler. Also loads the idle process from the specified program file.
+ *
+ * @param memorySize The total size of the simulated memory.
+ * @param programFile The program file to use for the idle process.
+ */
 OperatingSystem::OperatingSystem(uint32_t memorySize, const std::string& programFile)
     : mem(memorySize), cpu(mem, scheduler), programFile(programFile) {
     currentMemAddress = 0;
@@ -9,7 +26,60 @@ OperatingSystem::OperatingSystem(uint32_t memorySize, const std::string& program
     loadIdleProcess(programFile);
 }
 
+/**
+ * Loads the special idle process into memory. This process is used when
+ * no other runnable process exists. It is loaded into a fixed virtual address.
+ *
+ * @param file The path to the idle process binary file.
+ */
+void OperatingSystem::loadIdleProcess(const std::string& file)
+{
+    const uint32_t IDLE_VADDR = 0xF000;
 
+    Program* idle = new Program(file);
+    idle->loadProgram(file);
+
+    // Create PCB for idle process
+    PCB* idlePCB = new PCB(999, idle->getCodeSize(), 0, 0, 1, idle, 0);
+    idlePCB->registers[11] = IDLE_VADDR;  // Set instruction pointer to fixed virtual address
+    idlePCB->isLoaded = true;
+    scheduler.addProcess(idlePCB);
+    processList.push_back(idlePCB);
+
+
+    // Load instructions into reserved memory using getaddress
+    std::vector<uint32_t> code = idle->getInstructions();
+    uint32_t addr = IDLE_VADDR;
+
+    
+    //std::cout << "[IDLE] Writing " << code.size() << " instruction values\n";
+    //std::cout << "[IDLE WRITE] Writing to VA: 0x" << std::hex << addr << std::dec << "\n";
+
+    for (size_t i = 0; i < code.size(); i += 3) 
+    {
+        uint32_t physical_addr = mem.getaddress(addr, 999); 
+        
+        //std::cout << "  → physical address: 0x" << std::hex << physical_addr << std::dec << "\n";
+
+        mem.set8(physical_addr, code[i]);
+        mem.set32(physical_addr + 1, code[i+1]); 
+        mem.set32(physical_addr + 5, code[i+2]); 
+
+        addr += 9; 
+    }
+    
+}
+
+/**
+ * Loads a new user process into the system.
+ *
+ * @param id         Process ID.
+ * @param programFile The path to the program's binary file.
+ * @param stackSize  Size of the stack segment.
+ * @param dataSize   Size of the data segment.
+ * @param priority   Priority of the process.
+ * @param heapSize   Size of the heap segment.
+ */
 void OperatingSystem::loadProcess(uint32_t id, const std::string& programFile, uint32_t stackSize, uint32_t dataSize, uint32_t priority, uint32_t heapSize) 
 {
     Program* newProgram = new Program(programFile);
@@ -25,7 +95,6 @@ void OperatingSystem::loadProcess(uint32_t id, const std::string& programFile, u
 
     uint32_t pagesNeeded = alignedSize / PAGE_SIZE;
     
-
     currentMemAddress += alignedSize;
 
     PCB* newProcess = new PCB(id, codeSize, stackSize, dataSize, priority, newProgram, heapSize);
@@ -53,7 +122,10 @@ void OperatingSystem::loadProcess(uint32_t id, const std::string& programFile, u
     processList.push_back(newProcess);
 }
 
-
+/**
+ * Starts the operating system's scheduling loop. Handles dispatching,
+ * CPU execution, state transitions, and memory management.
+ */
 void OperatingSystem::start() 
 {
     std::cout << "Starting OS with Process and Program Management...\n";
@@ -342,6 +414,12 @@ void OperatingSystem::start()
    
 }
 
+/**
+ * Terminates a process by its PID and deallocates its resources.
+ *
+ * @param pid Process ID to terminate.
+ * @return true if the process was found and terminated; false otherwise.
+ */
 bool OperatingSystem::terminateProcessByPid(uint32_t pid)
 {
     auto it = std::find_if(processList.begin(), processList.end(),
@@ -400,6 +478,11 @@ bool OperatingSystem::terminateProcessByPid(uint32_t pid)
     return false;
 }
 
+/**
+ * Checks if there are any processes that are sleeping or waiting.
+ *
+ * @return true if such processes exist (excluding the idle process), false otherwise.
+ */
 bool OperatingSystem::hasSleepingOrWaitingProcesses() 
 {
     for (auto* p : processList) 
@@ -410,6 +493,11 @@ bool OperatingSystem::hasSleepingOrWaitingProcesses()
     return false;
 }
 
+/**
+ * Checks if all non-idle processes are either sleeping or waiting.
+ *
+ * @return true if all non-idle processes are in a non-runnable state, false otherwise.
+ */
 bool OperatingSystem::hasAllSleepingOrWaitingProcesses()
 {
     for (auto* p : processList) 
@@ -422,6 +510,10 @@ bool OperatingSystem::hasAllSleepingOrWaitingProcesses()
     return true;
 }
 
+/**
+ * Unblocks the highest-priority process that is waiting on memory.
+ * Loads the process back into memory and moves it to the ready state.
+ */
 void OperatingSystem::unblockProcesses()
 {
     PCB* highestPriorityWaiting = nullptr;
@@ -457,43 +549,6 @@ void OperatingSystem::unblockProcesses()
 
 }
 
-void OperatingSystem::loadIdleProcess(const std::string& file)
-{
-    const uint32_t IDLE_VADDR = 0xF000;
-
-    Program* idle = new Program(file);
-    idle->loadProgram(file);
-
-    // Create PCB for idle process
-    PCB* idlePCB = new PCB(999, idle->getCodeSize(), 0, 0, 1, idle, 0);
-    idlePCB->registers[11] = IDLE_VADDR;  // Set instruction pointer to fixed virtual address
-    idlePCB->isLoaded = true;
-    scheduler.addProcess(idlePCB);
-    processList.push_back(idlePCB);
-
-
-    // Load instructions into reserved memory using getaddress
-    std::vector<uint32_t> code = idle->getInstructions();
-    uint32_t addr = IDLE_VADDR;
-
-    
-    //std::cout << "[IDLE] Writing " << code.size() << " instruction values\n";
-    //std::cout << "[IDLE WRITE] Writing to VA: 0x" << std::hex << addr << std::dec << "\n";
-
-    for (size_t i = 0; i < code.size(); i += 3) 
-    {
-        uint32_t physical_addr = mem.getaddress(addr, 999); 
-        
-        //std::cout << "  → physical address: 0x" << std::hex << physical_addr << std::dec << "\n";
-
-        mem.set8(physical_addr, code[i]);
-        mem.set32(physical_addr + 1, code[i+1]); 
-        mem.set32(physical_addr + 5, code[i+2]); 
-
-        addr += 9; 
-    }
-    
-}
 
 
 

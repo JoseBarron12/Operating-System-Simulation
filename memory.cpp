@@ -1,3 +1,13 @@
+// *************************************************************************** 
+// 
+//   Jose Barron 
+//   Z2013735
+//   CSCI 480 PE1
+// 
+//   I certify that this is my own work and where appropriate an extension 
+//   of the starter code provided for the assignment. 
+// ***************************************************************************
+
 #include "memory.h"
 #include <stdint.h>
 #include <unistd.h>
@@ -13,8 +23,16 @@
 
 static uint64_t systemClock = 0;
 
+/**
+ * Constructs a memory object with the specified size, initializes physical memory,
+ * divides it into pages, creates shared memory regions, and reserves space
+ * for the idle process with PID 999.
+ *
+ * @param siz The total size of memory to allocate (rounded to the nearest multiple of 16).
+ */
 memory::memory(uint32_t siz )
 {
+    // Memory region of physical memory for programs
     siz = (siz+15)&0xfffffff0;
     pages = (siz + PAGE_SIZE - 1) / PAGE_SIZE;
     mem.resize(pages * PAGE_SIZE, 0x00);
@@ -24,6 +42,7 @@ memory::memory(uint32_t siz )
         freePages.insert(i);
     }  
     
+    // Shared memory region of physical memory
     uint32_t sharedMemStart = mem.size();
     mem.resize(mem.size() + (1000 * 10), 0x00);
     for (int i = 0; i < 10; ++i) 
@@ -34,9 +53,10 @@ memory::memory(uint32_t siz )
                 << std::hex << baseAddr << std::dec << "\n";
     }
 
-    // Align to next page boundary
-    uint32_t idleStart = mem.size();
-    if (idleStart % PAGE_SIZE != 0) {
+    // Memory region of physical memory for idle process
+    uint32_t idleStart = mem.size(); 
+    if (idleStart % PAGE_SIZE != 0) 
+    {
         idleStart = ((idleStart / PAGE_SIZE) + 1) * PAGE_SIZE;
         mem.resize(idleStart, 0x00); // pad to alignment
     }
@@ -59,12 +79,22 @@ memory::memory(uint32_t siz )
 
 }
 
+/**
+ * Destructor for the memory class.
+ * Clears all allocated memory and frees physical pages.
+ */
 memory::~memory()
 {
     mem.clear();
     freePages.clear();
 }
 
+/**
+ * Checks whether the given address is within valid memory bounds.
+ *
+ * @param addr The address to validate.
+ * @return True if the address is illegal (out of bounds), false otherwise.
+ */
 bool memory::check_illegal(uint32_t addr) const
 {
     if (addr >= mem.size()) 
@@ -76,27 +106,50 @@ bool memory::check_illegal(uint32_t addr) const
     return false;
 }
 
+/**
+ * Returns the size of the physical memory in bytes
+ * 
+ * @return Memory size in bytes.
+ */
 uint32_t memory::get_size() const
 {
     return mem.size();
 }
 
+/**
+ * Reads a byte from memory using a process's virtual address.
+ */
 uint8_t memory::get8(uint32_t addr, uint32_t pid)
 {
     uint32_t physical_addr = getaddress(addr, pid);
     return mem[physical_addr];
 }
 
+/**
+ * Reads a 16-bit value from memory using virtual address.
+ */
 uint16_t memory::get16(uint32_t addr, uint32_t pid)
 {
     return (get8(addr + 1, pid) << 8) | get8(addr, pid);
 }
 
+/**
+ * Reads a 32-bit value from memory using virtual address.
+ */
 uint32_t memory::get32(uint32_t addr, uint32_t pid)
 {
     return (get16(addr + 2, pid) << 16) | get16(addr, pid);
 }
 
+/**
+ * Translates a virtual address to a physical address for a specific process.
+ * Handles page faults, page allocation, and swapping if needed.
+ *
+ * @param virtualAddr The virtual address being accessed.
+ * @param pid The process ID performing the access.
+ * @return The corresponding physical address in memory.
+ * @throws runtime_error If a page fault blocks the process or an illegal access occurs.
+ */
 
 uint32_t memory::getaddress(uint32_t virtualAddr, uint32_t pid)
 {
@@ -211,13 +264,17 @@ uint32_t memory::getaddress(uint32_t virtualAddr, uint32_t pid)
 
     return (entry.physicalPage * PAGE_SIZE) + offset;
 }
-
-
+/**
+ * Returns number of memory pages.
+ */
 uint32_t memory::getpages()
 {
     return pages;
 }
 
+/**
+ * Writes a byte to memory.
+ */
 void memory::set8(uint32_t addr, uint8_t val)
 {
     if (!check_illegal(addr))
@@ -232,44 +289,32 @@ void memory::set8(uint32_t addr, uint8_t val)
     }
 }
 
+/**
+ * Writes a 16-bit value to memory.
+ */
 void memory::set16(uint32_t addr, uint16_t val)
 {
     set8(addr, val & 0xFF);
     set8(addr + 1, val >> 8);
 }
 
+/**
+ * Writes a 32-bit value to memory.
+ */
 void memory::set32(uint32_t addr, uint32_t val)
 {
     set16(addr, val & 0xFFFF);
     set16(addr + 2, val >> 16);
 }
 
-bool memory::load_file(const std::string &fname )
-{
-    std::ifstream infile(fname, std::ios::in|std::ios::binary);
-
-    if( !infile )
-    {
-        std::cerr << "\nCan't open file '" << fname << "' for reading.";
-        return false;          
-    }
-
-    uint8_t i;
-    infile >> std::noskipws;
-    for (uint32_t addr = 0; infile >> i; ++addr)
-    {
-        if ( check_illegal(addr))
-        {
-            std::cerr << "Program too big.\n";
-            infile.close();
-            return false;
-        }
-        set8(addr,i);
-    }
-    infile.close();
-    return true;
-}
-
+/**
+ * Maps a virtual page to a physical page for a given process in the paging table.
+ * Special handling prevents remapping the idle process's page.
+ *
+ * @param startAddress The start address of the virtual page.
+ * @param physicalPage The index of the physical page to map.
+ * @param pid The process ID owning the page.
+ */
 void memory::mapPage(uint32_t startAddress, uint32_t physicalPage, uint32_t pid) 
 {
     if (pid == 999 && paging_table.count(startAddress)) 
@@ -291,11 +336,21 @@ void memory::mapPage(uint32_t startAddress, uint32_t physicalPage, uint32_t pid)
               << " → physical page " << physicalPage << std::dec << std::endl;
 }
 
-
+/**
+ * Checks if a virtual page has already been mapped.
+ */
 bool memory::pageExists(uint32_t startAddress) const 
 {
     return paging_table.find(startAddress) != paging_table.end();
 }
+
+/**
+ * Allocates a free physical memory page from the available pool.
+ *
+ * @return The physical page number that was allocated.
+ *         Returns UINT32_MAX if no pages are available.
+ */
+
 
 uint32_t memory::allocatePage() 
 {
@@ -314,6 +369,9 @@ uint32_t memory::allocatePage()
     return page;
 }
 
+/**
+ * Prints the current paging table to the console.
+ */
 void memory::printPagingTable() const 
 {
     std::cout << "===== Paging Table =====" << std::endl;
@@ -332,11 +390,17 @@ void memory::printPagingTable() const
     }
 }
 
+/**
+ * Returns the current page table.
+ */
 std::unordered_map<uint32_t, PageEntry> memory::getPagingTable() const 
 {
     return paging_table;  
 }
 
+/**
+ * Prints raw contents of memory by physical address.
+ */
 void memory::debugDump() const 
 {
     std::cout << "===== Memory Dump =====" << std::endl;
@@ -362,11 +426,17 @@ void memory::debugDump() const
     }
 }
 
+/**
+ * Checks whether memory has any free pages.
+ */
 bool memory::hasFreePage() const 
 {
     return !freePages.empty();
 }
 
+/**
+ * Finds the least recently used page.
+ */
 uint32_t memory::findLRUPage()
 {
     uint64_t minTime = UINT64_MAX;
@@ -383,6 +453,11 @@ uint32_t memory::findLRUPage()
     return lruPage;
 }
 
+/**
+ * Swaps a virtual page out of memory. If the page is dirty, writes it to swap space.
+ *
+ * @param virtualAddr The virtual address of the page to swap out.
+ */
 void memory::swapOutPage(uint32_t virtualAddr) 
 {
     if (!paging_table.count(virtualAddr)) return;
@@ -413,13 +488,17 @@ void memory::swapOutPage(uint32_t virtualAddr)
     entry.isValid = false;
 }
 
-
-
+/**
+ * Returns the count of free physical pages.
+ */
 uint32_t memory::getFreePageCount() const 
 {
     return freePages.size();
 }
 
+/**
+ * Prints memory usage metrics such as faults and swap stats.
+ */
 void memory::printMemoryMetrics() const 
 {
     std::cout << "\n=== Memory Metrics Summary ===\n";
@@ -430,6 +509,11 @@ void memory::printMemoryMetrics() const
 }
 
 
+/**
+ * Frees all memory pages owned by the given process and removes them from the paging table.
+ *
+ * @param pid The process ID whose pages should be deallocated.
+ */
 void memory::deallocateProcessPages(uint32_t pid)
 {
     for (auto it = paging_table.begin(); it != paging_table.end(); )
@@ -453,7 +537,9 @@ void memory::deallocateProcessPages(uint32_t pid)
     }
 }
 
-
+/**
+ * Outputs free page list for debugging.
+ */
 void memory::debugPrintFreePages() const
 {
     std::cout << "[Memory Deallocation] Free Physical Pages After Deallocation: ";
