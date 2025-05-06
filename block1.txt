@@ -1,8 +1,0 @@
-movi r1, 0      
-movi r2, 123     
-movrm r1, r2     
-movi r1, 256     
-movrm r1, r2    
-movi r1, 512      
-movrm r1, r2    
-exit

@@ -1,8 +1,0 @@
-movi r1, 1          
-AcquireLock r1     
-movi r2, 123        
-printr r2  
-movi r3, 3          
-sleep r3           
-ReleaseLock r1  
-exit

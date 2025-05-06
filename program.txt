@@ -1,4 +1,0 @@
-movi r1, $5  
-sleep r1      
-printr r1
-exit

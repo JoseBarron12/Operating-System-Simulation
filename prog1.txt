@@ -1,6 +1,0 @@
-movi r0 $200
-Alloc r0 r1
-movi r0 $200
-Alloc r0 r2
-printr r2
-exit

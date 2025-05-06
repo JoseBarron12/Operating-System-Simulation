@@ -103,11 +103,7 @@ void OperatingSystem::loadProcess(uint32_t id, const std::string& programFile, u
 
     std::cout << "[MEMORY ALLOCATION] Process " << id << " assigned memory at "
               << programStartAddress << " - " << (programStartAddress + alignedSize) << std::endl;
-    //std::cout << "[DEBUG] Set PCB IP to: " << std::hex << newProcess->registers[11] << std::endl;
-
-    std::cout << std::hex << "[MEMORY ALLOCATION] Process " << id 
-          << " assigned memory at 0x" << programStartAddress 
-          << " - 0x" << (programStartAddress + alignedSize) << std::dec << std::endl;      
+    //std::cout << "[DEBUG] Set PCB IP to: " << std::hex << newProcess->registers[11] << std::endl;     
 
     std::unordered_map<uint32_t, PageEntry> pageTable = mem.getPagingTable();
     for (const auto& [virtualAddr, page] : pageTable) 
@@ -128,7 +124,7 @@ void OperatingSystem::loadProcess(uint32_t id, const std::string& programFile, u
  */
 void OperatingSystem::start() 
 {
-    std::cout << "Starting OS with Process and Program Management...\n";
+    std::cout << "Starting OS...\n";
 
     uint32_t usedMemory = currentMemAddress;
     uint32_t totalMemory = mem.get_size();
@@ -412,8 +408,8 @@ void OperatingSystem::start()
         
     }
 
-    mem.printPagingTable();
-    mem.printMemoryMetrics();
+    //mem.printPagingTable();
+    //mem.printMemoryMetrics();
    
 }
 

@@ -1,4 +1,0 @@
-movi r1, 768      
-movi r2, 999
-movrm r1, r2
-exit

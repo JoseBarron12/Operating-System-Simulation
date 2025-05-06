@@ -1,5 +1,0 @@
-movi r0, 0        
-MapSharedMem r0, r1 
-movi r2, 123      
-movrm r1, r2      
-exit

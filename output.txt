@@ -10,44 +10,25 @@
 [SHARED INIT] Region 9 starts at physical address 0x2728
 [IDLE ALLOCATION] Process 999 fixed at physical 0x2c00
 [MEMORY ALLOCATION] Process 1 assigned memory at 0 - 1536
-[MEMORY ALLOCATION] Process 1 assigned memory at 0x0 - 0x600
 [MEMORY ALLOCATION] Process 2 assigned memory at 1536 - 2816
-[MEMORY ALLOCATION] Process 2 assigned memory at 0x600 - 0xb00
 [MEMORY ALLOCATION] Process 3 assigned memory at 2816 - 4096
-[MEMORY ALLOCATION] Process 3 assigned memory at 0xb00 - 0x1000
 [MEMORY ALLOCATION] Process 4 assigned memory at 4096 - 5376
-[MEMORY ALLOCATION] Process 4 assigned memory at 0x1000 - 0x1500
 [MEMORY ALLOCATION] Process 5 assigned memory at 5376 - 6656
-[MEMORY ALLOCATION] Process 5 assigned memory at 0x1500 - 0x1a00
 [MEMORY ALLOCATION] Process 6 assigned memory at 6656 - 7936
-[MEMORY ALLOCATION] Process 6 assigned memory at 0x1a00 - 0x1f00
 [MEMORY ALLOCATION] Process 7 assigned memory at 7936 - 9216
-[MEMORY ALLOCATION] Process 7 assigned memory at 0x1f00 - 0x2400
 [MEMORY ALLOCATION] Process 8 assigned memory at 9216 - 10496
-[MEMORY ALLOCATION] Process 8 assigned memory at 0x2400 - 0x2900
 [MEMORY ALLOCATION] Process 9 assigned memory at 10496 - 11776
-[MEMORY ALLOCATION] Process 9 assigned memory at 0x2900 - 0x2e00
 [MEMORY ALLOCATION] Process 10 assigned memory at 11776 - 13056
-[MEMORY ALLOCATION] Process a assigned memory at 0x2e00 - 0x3300
 [MEMORY ALLOCATION] Process 11 assigned memory at 13056 - 14336
-[MEMORY ALLOCATION] Process b assigned memory at 0x3300 - 0x3800
 [MEMORY ALLOCATION] Process 12 assigned memory at 14336 - 15616
-[MEMORY ALLOCATION] Process c assigned memory at 0x3800 - 0x3d00
 [MEMORY ALLOCATION] Process 13 assigned memory at 15616 - 16896
-[MEMORY ALLOCATION] Process d assigned memory at 0x3d00 - 0x4200
 [MEMORY ALLOCATION] Process 14 assigned memory at 16896 - 18176
-[MEMORY ALLOCATION] Process e assigned memory at 0x4200 - 0x4700
 [MEMORY ALLOCATION] Process 15 assigned memory at 18176 - 19456
-[MEMORY ALLOCATION] Process f assigned memory at 0x4700 - 0x4c00
 [MEMORY ALLOCATION] Process 16 assigned memory at 19456 - 20736
-[MEMORY ALLOCATION] Process 10 assigned memory at 0x4c00 - 0x5100
 [MEMORY ALLOCATION] Process 17 assigned memory at 20736 - 22016
-[MEMORY ALLOCATION] Process 11 assigned memory at 0x5100 - 0x5600
 [MEMORY ALLOCATION] Process 18 assigned memory at 22016 - 23296
-[MEMORY ALLOCATION] Process 12 assigned memory at 0x5600 - 0x5b00
 [MEMORY ALLOCATION] Process 19 assigned memory at 23296 - 24576
-[MEMORY ALLOCATION] Process 13 assigned memory at 0x5b00 - 0x6000
-Starting OS with Process and Program Management...
+Starting OS...
 [MEMORY] Total memory: 11520 bytes
 [MEMORY] Used memory (programs + shared): 24576 bytes
 [MEMORY] Remaining memory: 4294954240 bytes
@@ -102,6 +83,7 @@ Program terminated.
 [PAGE FAULT] Page 0x500 not in memory.
 [ALLOCATE] Allocated physical page 3
 [SWAP-IN] No saved page on disk for 0x500, zero-filled.
+[OS] Process 2 is: Sleeping for 3 cycles
 [SCHEDULER] Process 3 is now running (Priority: 1e)
 [MAP] Mapped virtual page 0xb00 → physical page 0
 [MAP] Mapped virtual page 0xc00 → physical page 1
@@ -155,6 +137,7 @@ Program terminated.
 [PREEMPTION] Higher-priority process 2 is waking up. Forcing CPU to yield.
 [SCHEDULER] Process 2 is now running (Priority: 1f)
 Register 3: 3
+[OS] Process 2 is: Sleeping for 3 cycles
 [SCHEDULER] Process 4 is now running (Priority: 29)
 [PROCESS KILLED] PID: 2 terminated by another process
 
@@ -215,6 +198,7 @@ Program terminated.
 [ALLOCATE] Allocated physical page 0
 [SWAP-IN] No saved page on disk for 0x1a00, zero-filled.
 [LOCK] Process 6 acquired lock 1
+[OS] Process 6 is: Sleeping for 3 cycles
 [SCHEDULER] Process 7 is now running (Priority: 1a)
 [MAP] Mapped virtual page 0x1f00 → physical page 0
 [MAP] Mapped virtual page 0x2000 → physical page 1
@@ -333,6 +317,7 @@ Program terminated.
 [PAGE FAULT] Page 0x2e00 not in memory.
 [ALLOCATE] Allocated physical page 0
 [SWAP-IN] No saved page on disk for 0x2e00, zero-filled.
+[OS] Process a is: Sleeping for 5 cycles
 [SCHEDULER] Process b is now running (Priority: 16)
 [MAP] Mapped virtual page 0x3300 → physical page 0
 [MAP] Mapped virtual page 0x3400 → physical page 1
@@ -343,6 +328,7 @@ Program terminated.
 [SWAP-IN] No saved page on disk for 0x3300, zero-filled.
 [SLEEP CYCLE] Process a now has 4 cycles left
 [SLEEP CYCLE] Process a now has 3 cycles left
+[OS] Process b is: Sleeping for 5 cycles
 [SCHEDULER] Process c is now running (Priority: 15)
 [MAP] Mapped virtual page 0x3800 → physical page 0
 [MAP] Mapped virtual page 0x3900 → physical page 1
@@ -578,11 +564,3 @@ Program terminated.
   → Heap Allocations:
 [Memory Deallocation] Free Physical Pages After Deallocation: 0 1 2 3 
 [OS] Only idle process remains. Halting system...
-===== Paging Table =====
-Start Address: 0xf000 | Physical Page: 2c | IsValid: true | IsDirty: false | PID: 999 | LastUsed: 6
-
-=== Memory Metrics Summary ===
-Total Page Faults: 24
-Pages Swapped Out: 0
-Pages Swapped In:  0
-Free Physical Pages Remaining: 4

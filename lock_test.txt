@@ -1,7 +1,0 @@
-movi r0 $0          
-movi r1 $0xf000     
-movi r2 $42         
-AcquireLock r0      
-movrm r1 r2         
-ReleaseLock r0      
-exit           

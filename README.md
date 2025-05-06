@@ -93,5 +93,8 @@
 - Each `<programN.txt>` is a user program loaded in the order they appear.
 - Programs **earlier on the command line are given higher priority**.
 - A **maximum of 31 user programs** can be provided.
+- EXAMPLE 1: ./os 1024 test_opcodes.txt legal.txt illegal.txt killer.txt high_waiter.txt lock_holder.txt low_waiter.txt heapfail.txt heap_test.txt sleep1.txt sleep2.txt sleep3.txt test_eventi.txt test_eventi_signal.txt sharedmem1.txt sharedmem2.txt SetPriorityI.txt SetPriority.txt SetPriorityWrong.txt
+- EXAMPLE 2: ./os 512 sleep1.txt sleep2.txt sleep3.txt
+
 
 [![Open in Codespaces](https://classroom.github.com/assets/launch-codespace-2972f46106e565e64193e422d61a12cf1da4916b45550586e14ef0a7c637dd04.svg)](https://classroom.github.com/open-in-codespaces?assignment_repo_id=18102137)
