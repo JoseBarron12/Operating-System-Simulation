@@ -84,10 +84,9 @@ This project simulates a simplified operating system developed as part of CSCI 4
 
 ## How to Compile
 1. Compile the project using `g++`:
-   ```bash
-   g++ -o build/os src/*.cpp -Iinclude -std=c++17
-
-
+```bash
+g++ -o build/os src/*.cpp -Iinclude -std=c++17
+```
 ## How to Run
 ```bash
 ./build/os <memory_size_in_bytes> <program1.txt> <program2.txt> ... <idle.txt>
