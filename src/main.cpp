@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
         return 1;
     }
     
-    OperatingSystem os(memSize, "idle.txt"); // load the idle process regardless
+    OperatingSystem os(memSize, "src/idle.txt"); // load the idle process regardless
     
     for (int i = 0; i < processCount; ++i) 
     {

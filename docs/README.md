@@ -85,27 +85,28 @@ This project simulates a simplified operating system developed as part of CSCI 4
 ## How to Compile
 1. Compile the project using `g++`:
    ```bash
-   g++ -o os main.cpp cpu.cpp memory.cpp ProcessScheduler.cpp pcb.cpp program.cpp OperatingSystem.cpp hex.cpp -std=c++17
+   g++ -o build/os src/*.cpp -Iinclude -std=c++17
+
 
 ## How to Run
 ```bash
-./os <memory_size_in_bytes> <program1.txt> <program2.txt> ... <idle.txt>
+./build/os <memory_size_in_bytes> <program1.txt> <program2.txt> ... <idle.txt>
 ```
-- `./os` is the compiled executable for MidOS.
+- `./build/os` is the compiled executable for MidOS.
 - The first argument is the **total program memory size** in bytes (e.g., 32768).
 - Each `<programN.txt>` is a user program loaded in the order they appear.
 - Programs **earlier on the command line are given higher priority**.
 - A **maximum of 31 user programs** can be provided.
 - **EXAMPLE 1:** 
 ```bash
-./os 1024 test_opcodes.txt legal.txt illegal.txt killer.txt high_waiter.txt lock_holder.txt low_waiter.txt heapfail.txt heap_test.txt sleep1.txt sleep2.txt sleep3.txt test_eventi.txt test_eventi_signal.txt sharedmem1.txt sharedmem2.txt SetPriorityI.txt SetPriority.txt SetPriorityWrong.txt
+./build/os 1024 src/test_opcodes.txt src/legal.txt src/illegal.txt src/killer.txt src/high_waiter.txt src/lock_holder.txt src/low_waiter.txt src/heapfail.txt src/heap_test.txt src/sleep1.txt src/sleep2.txt src/sleep3.txt src/test_eventi.txt src/test_eventi_signal.txt src/sharedmem1.txt src/sharedmem2.txt src/SetPriorityI.txt src/SetPriority.txt src/SetPriorityWrong.txt
 ```
   **Expected Output - output-idle.txt:**
   - The `output.txt` file provides a comprehensive log of OS activities, including memory allocation, process scheduling, heap operations, events, locks, sleep, illegal memory access, and shared memory mapping. It includes structured output for each process, detailing memory usage, context switches, page faults, heap allocations, and termination statistics.
   - The log includes diagnostic messages for key OS operations such as memory allocation, page faults, shared memory mapping, lock acquisition, event signaling, illegal memory access, and process termination.
 - **EXAMPLE 2:** 
 ```bash
-./os 512 sleep1.txt sleep2.txt sleep3.txt
+./build/os 512 src/sleep1.txt src/sleep2.txt src/sleep3.txt
 ```
   **Expected Output - output-idle.txt:**
   - The `output-idle.txt` file highlights OS behavior when the idle process is the primary active process due to other processes being blocked, sleeping, or terminated.
