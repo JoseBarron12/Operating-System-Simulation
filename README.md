@@ -101,14 +101,14 @@ This project simulates a simplified operating system developed as part of CSCI 4
 ./os 1024 test_opcodes.txt legal.txt illegal.txt killer.txt high_waiter.txt lock_holder.txt low_waiter.txt heapfail.txt heap_test.txt sleep1.txt sleep2.txt sleep3.txt test_eventi.txt test_eventi_signal.txt sharedmem1.txt sharedmem2.txt SetPriorityI.txt SetPriority.txt SetPriorityWrong.txt
 ```
   **Expected Output - output-idle.txt:**
-  - The `output.txt` file provides a comprehensive log of OS activities, including memory allocation, process scheduling, heap operations, event signaling, and shared memory mapping. It includes structured output for each process, detailing memory usage, context switches, page faults, heap allocations, and termination statistics.
-  - The log includes diagnostic messages for key OS operations such as memory allocation, page faults, shared memory mapping, lock acquisition, event signaling, and process termination.
+  - The `output.txt` file provides a comprehensive log of OS activities, including memory allocation, process scheduling, heap operations, events, locks, sleep, illegal memory access, and shared memory mapping. It includes structured output for each process, detailing memory usage, context switches, page faults, heap allocations, and termination statistics.
+  - The log includes diagnostic messages for key OS operations such as memory allocation, page faults, shared memory mapping, lock acquisition, event signaling, illegal memory access, and process termination.
 - **EXAMPLE 2:** 
 ```bash
 ./os 512 sleep1.txt sleep2.txt sleep3.txt
 ```
   **Expected Output - output-idle.txt:**
   - The `output-idle.txt` file highlights OS behavior when the idle process is the primary active process due to other processes being blocked, sleeping, or terminated.
-  - It includes key events such as idle process activation, memory allocation/deallocation, and transitions when processes resume or terminate.
+  - It includes key events such as idle process activation, memory allocation/deallocation, blocked memory, and transitions when processes resume or terminate.
   - The log provides a summary of idle cycles, memory state, and the final system halt when only the idle process remains active.
 
