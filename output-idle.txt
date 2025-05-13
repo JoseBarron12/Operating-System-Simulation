@@ -1,0 +1,104 @@
+[SHARED INIT] Region 0 starts at physical address 0x200
+[SHARED INIT] Region 1 starts at physical address 0x5e8
+[SHARED INIT] Region 2 starts at physical address 0x9d0
+[SHARED INIT] Region 3 starts at physical address 0xdb8
+[SHARED INIT] Region 4 starts at physical address 0x11a0
+[SHARED INIT] Region 5 starts at physical address 0x1588
+[SHARED INIT] Region 6 starts at physical address 0x1970
+[SHARED INIT] Region 7 starts at physical address 0x1d58
+[SHARED INIT] Region 8 starts at physical address 0x2140
+[SHARED INIT] Region 9 starts at physical address 0x2528
+[IDLE ALLOCATION] Process 999 fixed at physical 0x2a00
+[MEMORY ALLOCATION] Process 1 assigned memory at 0 - 1280
+[MEMORY ALLOCATION] Process 2 assigned memory at 1280 - 2560
+[MEMORY ALLOCATION] Process 3 assigned memory at 2560 - 3840
+Starting OS...
+[MEMORY] Total memory: 11008 bytes
+[MEMORY] Used memory (programs + shared): 3840 bytes
+[MEMORY] Remaining memory: 7168 bytes
+[MEMORY] Shared memory regions mapped at: 
+[SCHEDULER] Process 1 is now running (Priority: 32)
+[MAP] Mapped virtual page 0x0 → physical page 0
+[MAP] Mapped virtual page 0x200 → physical page 1
+[PAGE FAULT] Page 0x0 not in memory.
+[ALLOCATE] Allocated physical page 1
+[SWAP-IN] No saved page on disk for 0x0, zero-filled.
+[OS] Process 1 is: Sleeping for 5 cycles
+[SCHEDULER] Process 2 is now running (Priority: 1f)
+[MAP] Mapped virtual page 0x500 → physical page 0
+[MAP] Mapped virtual page 0x600 → physical page 1
+[PAGE FAULT] Page 0x500 not in memory.
+[ALLOCATE] Allocated physical page 0
+[SWAP-IN] No saved page on disk for 0x500, zero-filled.
+[SLEEP CYCLE] Process 1 now has 4 cycles left
+[SLEEP CYCLE] Process 1 now has 3 cycles left
+[OS] Process 2 is: Sleeping for 5 cycles
+[SCHEDULER] Process 3 is now running (Priority: 1e)
+[MAP] Mapped virtual page 0xa00 → physical page 0
+[MAP] Mapped virtual page 0xb00 → physical page 1
+[PAGE FAULT] Page 0xa00 not in memory.
+[MEMORY BLOCK] No pages available. Process 3 will wait for memory.
+[MEMORY BLOCK] Process 3 is now Waiting for Memory
+[SCHEDULER] Process 3e7 is now running (Priority: 1)
+[BLOCKED CHECK]: true
+[IDLE] Running idle process for 3 cycles...
+[SLEEP CYCLE] Process 1 now has 2 cycles left
+[SLEEP CYCLE] Process 2 now has 4 cycles left
+Register 1: 20
+[SLEEP CYCLE] Process 1 now has 1 cycles left
+[SLEEP CYCLE] Process 2 now has 3 cycles left
+[SLEEP CYCLE] Process 1 now has 0 cycles left
+[WAKE UP] Process 1 is now Ready
+[PREEMPTION] Higher-priority process 1 is waking up. Forcing CPU to yield.
+[SLEEP CYCLE] Process 2 now has 2 cycles left
+[SCHEDULER] Process 1 is now running (Priority: 32)
+Program terminated.
+[SLEEP CYCLE] Process 2 now has 1 cycles left
+
+[PROCESS TERMINATED] PID: 1 | Priority: 32
+  → Clock Cycles: 3
+  → Context Switches: 2
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0x200 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0x0 | Physical Page: 1 | IsValid: true | IsDirty: true | LastUsed: 90
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 1 
+[PAGE FAULT] Page 0xa00 not in memory.
+[ALLOCATE] Allocated physical page 1
+[SWAP-IN] No saved page on disk for 0xa00, zero-filled.
+[MEMORY UNBLOCK] Process 3 loaded and moved to Ready
+[SCHEDULER] Process 3 is now running (Priority: 1e)
+[SLEEP CYCLE] Process 2 now has 0 cycles left
+[WAKE UP] Process 2 is now Ready
+[PREEMPTION] Higher-priority process 2 is waking up. Forcing CPU to yield.
+[SCHEDULER] Process 2 is now running (Priority: 1f)
+Program terminated.
+
+[PROCESS TERMINATED] PID: 2 | Priority: 31
+  → Clock Cycles: 3
+  → Context Switches: 2
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0x500 | Physical Page: 0 | IsValid: true | IsDirty: false | LastUsed: 116
+    Virtual Page: 0x600 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+  → Heap Allocations:
+[Memory Deallocation] Free Physical Pages After Deallocation: 1 0 
+[SCHEDULER] Process 3 is now running (Priority: 30)
+REQUESTED SIZE: 100
+HEAPSIZE: 512
+[HEAP] Process 3 allocated 100 bytes at 0x448
+Register 2: 1096
+Program terminated.
+
+[PROCESS TERMINATED] PID: 3 | Priority: 30
+  → Clock Cycles: 4
+  → Context Switches: 1
+  → Page Faults: 1
+  → Pages Used:
+    Virtual Page: 0xb00 | Physical Page: 1 | IsValid: false | IsDirty: false | LastUsed: 0
+    Virtual Page: 0xa00 | Physical Page: 1 | IsValid: true | IsDirty: false | LastUsed: 143
+  → Heap Allocations:
+    Addr: 0x448, Size: 100, Used: Yes
+[Memory Deallocation] Free Physical Pages After Deallocation: 1 0 
+[OS] Only idle process remains. Halting system...
